@@ -1,0 +1,10 @@
+.project
+.idea/
+*.iml
+*.ipr
+*.iws
+a.log
+bak/
+out/
+target/
+#/src/main/java/com/welink/video/videoopenapi/mysql
