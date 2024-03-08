@@ -1,5 +1,6 @@
 package com.management.leave.common.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -8,6 +9,7 @@ import lombok.ToString;
  */
 @Getter
 @ToString
+@AllArgsConstructor
 public enum StatusEnum {
     DRAFT("Draft", "用户已保存未提交给审批人"),
     WAITE_FIRST_CONFIRM("FirstConfirm", "等待一次审批人审批"),
@@ -20,8 +22,4 @@ public enum StatusEnum {
     String code;
     String desc;
 
-    StatusEnum(String code, String desc) {
-        this.code = code;
-        this.desc = desc;
-    }
 }

@@ -66,11 +66,11 @@ public class MyBatisPlusGenerator {
                             // 标记实例类的主键生成方式，如果插入时没有指定，刚自动分配一个，默认是雪花算法
                             .idType(IdType.ASSIGN_ID)
                             // 指定生成的实体类名称
-                            .convertFileName(entityName -> entityName + "Entity")
+                            .convertFileName(entityName -> entityName.substring(1) + "Entity")
                             // 指定生成的service接口名称
-                            .serviceBuilder().convertServiceFileName(entityName -> entityName + "ServiceIDao")
+                            .serviceBuilder().convertServiceFileName(entityName -> entityName.substring(1)  + "ServiceIDao")
                             // 指定生成的serviceImpl的名称
-                            .convertServiceImplFileName(entityName -> entityName + "ServiceDao");
+                            .convertServiceImplFileName(entityName -> entityName.substring(1)  + "ServiceDao");
 
                 }).templateConfig(builder -> {
                     // 不生成Controller

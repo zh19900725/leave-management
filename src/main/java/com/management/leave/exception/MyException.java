@@ -8,13 +8,14 @@ public class MyException extends RuntimeException {
     private static final long serialVersionUID = 4010950949705194814L;
     private int errorCode;
     private String errorMsg;
-
+    private String leftFlag="[";
+    private String rightFlag="]";
     public MyException(Object errorInfo) {
         super(errorInfo.toString());
-        if(errorInfo instanceof String &&  ((String) errorInfo).contains("[")){
-            String code = ((String) errorInfo).split("]")[0].replace("[","");
+        if(errorInfo instanceof String &&  ((String) errorInfo).contains(leftFlag)){
+            String code = ((String) errorInfo).split(rightFlag)[0].replace(leftFlag,"");
             errorCode = Integer.parseInt(code);
-            errorMsg = ((String) errorInfo).replace(code,"").replace("[","").replace("]","").trim();
+            errorMsg = ((String) errorInfo).replace(code,"").replace(leftFlag,"").replace(rightFlag,"").trim();
         } else {
             this.errorMsg = errorInfo.toString();
             this.errorCode = -1;

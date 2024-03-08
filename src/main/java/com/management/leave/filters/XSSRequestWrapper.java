@@ -3,6 +3,9 @@ package com.management.leave.filters;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
+/**
+ * @author zh
+ */
 public class XSSRequestWrapper extends HttpServletRequestWrapper {
     public XSSRequestWrapper(HttpServletRequest request) {
         super(request);

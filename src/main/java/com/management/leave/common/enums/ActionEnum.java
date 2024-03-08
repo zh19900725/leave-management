@@ -1,10 +1,15 @@
 package com.management.leave.common.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
+/**
+ * @author zh
+ */
 @Getter
 @ToString
+@AllArgsConstructor
 public enum ActionEnum {
     EDIT("EDIT","编辑"),
     SUBMIT("SUBMIT","提交"),
@@ -14,10 +19,6 @@ public enum ActionEnum {
     String code;
     String desc;
 
-    ActionEnum(String code, String desc) {
-        this.code = code;
-        this.desc = desc;
-    }
 
     public static ActionEnum query(String code) {
         for (ActionEnum value : ActionEnum.values()) {

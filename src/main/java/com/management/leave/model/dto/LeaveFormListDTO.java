@@ -16,11 +16,11 @@ public class LeaveFormListDTO {
     /**
      * leave start time,timeStamp ms
      */
-    private long startTime;
+    private Long startTime;
     /**
      * end start time,timeStamp ms
      */
-    private long endTime;
+    private Long endTime;
     /**
      * form status
      */

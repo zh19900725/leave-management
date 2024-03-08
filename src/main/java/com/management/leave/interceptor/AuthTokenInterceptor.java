@@ -14,6 +14,9 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * @author zh
+ */
 @Slf4j
 @Component
 public class AuthTokenInterceptor implements HandlerInterceptor {
@@ -33,7 +36,7 @@ public class AuthTokenInterceptor implements HandlerInterceptor {
         // 执行认证
         Assert.assertNotEmpty(ErrorInfo.ERROR_TOKEN_NOT_FOUND, token);
         // 这个为了应对http 1.0的规范，Bearer 常见于 OAuth 和 JWT 授权
-        if(token.contains("Bearer ")){
+        if(token.contains("Bearer")){
             token = token.substring(token.substring(0,7).length(),token.length());
         }
         EmployeeInfo employeeInfo = tokenService.tokenVerify(token);

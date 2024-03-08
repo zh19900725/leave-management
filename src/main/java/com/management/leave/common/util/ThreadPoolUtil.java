@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * @author zh
  * 线程池的工具类
  * 用于进行线程的管理，防止重复创建、杀死线程。
  * <p>
@@ -23,11 +24,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ThreadPoolUtil {
 
     private static volatile ThreadPoolUtil mInstance;
-    //核心线程池的数量，同时能够执行的线程数量
+    /**
+     * 核心线程池的数量，同时能够执行的线程数量
+     */
     private int corePoolSize;
-    //最大线程池数量，表示当缓冲队列满的时候能继续容纳的等待任务的数量
+    /**
+     * 最大线程池数量，表示当缓冲队列满的时候能继续容纳的等待任务的数量
+     */
     private int maxPoolSize;
-    //存活时间
+    /**
+     * 存活时间
+     */
     private long keepAliveTime = 1;
     private TimeUnit unit = TimeUnit.HOURS;
     private ThreadPoolExecutor executor;

@@ -1,5 +1,15 @@
 package com.management.leave.exception;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
+
+/**
+ * @author zh
+ */
+@Getter
+@ToString
+@AllArgsConstructor
 public enum ErrorInfo {
     ERROR_UNKNOWN_ERROR(10000, "unknown error!"),
     ERROR_PARAM_ERROR(10001,"param error"),
@@ -20,29 +30,4 @@ public enum ErrorInfo {
     ;
     private int errorCode;
     private String errorMsg;
-    ErrorInfo(int errorCode, String errorMsg) {
-        this.errorCode = errorCode;
-        this.errorMsg = errorMsg;
-    }
-
-    public int getErrorCode() {
-        return this.errorCode;
-    }
-
-    public void setErrorCode(int errorCode) {
-        this.errorCode = errorCode;
-    }
-
-    public String getErrorMsg() {
-        return this.errorMsg;
-    }
-
-    public void setErrorMsg(String errorMsg) {
-        this.errorMsg = errorMsg;
-    }
-
-    @Override
-    public String toString() {
-        return "[" + this.errorCode + "] " + this.errorMsg;
-    }
 }

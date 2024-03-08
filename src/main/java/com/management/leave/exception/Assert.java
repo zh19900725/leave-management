@@ -7,6 +7,9 @@ import org.springframework.util.StringUtils;
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * @author zh
+ */
 @Log4j2
 public class Assert {
 
