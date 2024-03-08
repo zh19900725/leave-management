@@ -15,7 +15,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static com.management.leave.common.Constants.TRACE_ID;
+import static com.management.leave.common.constats.Constants.TRACE_ID;
 
 @Aspect
 @Component

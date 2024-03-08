@@ -1,6 +1,6 @@
-package com.management.leave.model;
+package com.management.leave.model.dto;
 
-import com.management.leave.common.StatusEnum;
+import com.management.leave.common.enums.StatusEnum;
 import lombok.Data;
 
 import java.util.Date;
@@ -10,7 +10,7 @@ import java.util.Date;
  * @author zh
  */
 @Data
-public class LeaveFormListReq {
+public class LeaveFormListDTO {
     /**
      * employee user id
      */

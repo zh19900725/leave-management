@@ -1,8 +1,13 @@
-package com.management.leave.common;
+package com.management.leave.common.util;
 
+import com.management.leave.common.constats.Constants;
+import com.management.leave.model.pojo.EmployeeInfo;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Random;
 
 /** some common utils
@@ -35,5 +40,18 @@ public class CommonUtils {
 
         return sb.toString();
 
+    }
+
+    public static EmployeeInfo getLoginInfo(HttpServletRequest request){
+        EmployeeInfo loginInfo = (EmployeeInfo) request.getAttribute(Constants.USER_CACHE);
+        return loginInfo;
+    }
+
+
+    public static LocalDate dateToLocalDate(Date date) {
+        if (date==null){
+            return null;
+        }
+        return date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
     }
 }

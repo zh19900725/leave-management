@@ -1,8 +1,9 @@
 package com.management.leave.exception;
 
 
-import com.management.leave.common.ErrorInfo;
-
+/**
+ * @author zh
+ */
 public class MyException extends RuntimeException {
     private static final long serialVersionUID = 4010950949705194814L;
     private int errorCode;
@@ -30,6 +31,12 @@ public class MyException extends RuntimeException {
         super("[" + code + "] " + msg);
         this.errorCode = code;
         this.errorMsg = msg;
+    }
+
+    public MyException(ErrorInfo errorInfo,String msg) {
+        super(errorInfo.toString() + ":" +msg);
+        this.errorCode = errorInfo.getErrorCode();
+        this.errorMsg = errorInfo.getErrorMsg()  + ":" +msg;
     }
 
     public int getErrorCode() {

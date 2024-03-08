@@ -1,6 +1,6 @@
-package com.management.leave.model;
+package com.management.leave.model.dto;
 
-import com.management.leave.common.StatusEnum;
+import com.management.leave.common.enums.StatusEnum;
 import lombok.Data;
 
 /**
@@ -8,20 +8,11 @@ import lombok.Data;
  * @author zh
  */
 @Data
-public class ApprovalReq {
+public class ApprovalDTO {
     /**
      * an id for a leave form
      */
     private Integer formId;
-    /**
-     * the employee who want to approval a leave form
-     */
-    private String approvalUserName;
-
-    /**
-     * approval time
-     */
-    private String approvalTime;
 
     /**
      * new status want to change

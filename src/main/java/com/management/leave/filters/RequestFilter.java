@@ -1,6 +1,6 @@
 package com.management.leave.filters;
 
-import com.management.leave.common.CommonUtils;
+import com.management.leave.common.util.CommonUtils;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static com.management.leave.common.Constants.TRACE_ID;
+import static com.management.leave.common.constats.Constants.TRACE_ID;
 
 
 /**
