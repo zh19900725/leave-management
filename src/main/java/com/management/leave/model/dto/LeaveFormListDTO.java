@@ -3,8 +3,6 @@ package com.management.leave.model.dto;
 import com.management.leave.common.enums.StatusEnum;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * list of leave forms
  * @author zh
@@ -16,13 +14,13 @@ public class LeaveFormListDTO {
      */
     private Integer userId;
     /**
-     * leave start time
+     * leave start time,timeStamp ms
      */
-    private Date startTime;
+    private long startTime;
     /**
-     * end start time
+     * end start time,timeStamp ms
      */
-    private Date endTime;
+    private long endTime;
     /**
      * form status
      */

@@ -34,32 +34,41 @@ public class LeaveController implements LeaveServiceApi {
     LeaveService leaveService;
 
     @Override
-    @PostMapping("/submit")
-    public ResultDTO<String> addOrUpdateForm(HttpServletRequest request, LeaveRequestDTO req) {
+    @PostMapping("/addOrUpdateForm")
+    public ResultDTO<Boolean> addOrUpdateForm(HttpServletRequest request, LeaveRequestDTO req) {
         // 参数校验
-        Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR,req.getAction());
-        Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR,req.getApplicantId());
-        switch (req.getAction()){
-            case EDIT:
-            case CANCEL:
-                Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR,req.getFormId());
-                break;
-            case SUBMIT:
-                Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR,req.getStartTime());
-                Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR,req.getEndTime());
-                Assert.assertNotEmpty(ErrorInfo.ERROR_PARAM_ERROR,req.getReason());
-        }
+        validatorParam(req);
         EmployeeInfo loginInfo = CommonUtils.getLoginInfo(request);
         Assert.assertNotNull(ErrorInfo.ERROR_UNKNOWN_ERROR,loginInfo);
         boolean b = leaveService.addOrUpdateLeaveForm(loginInfo, req);
         // 如果保存草稿直接返回，如果是提交动作且操作成功通知审批人
-        if (b && ActionEnum.SUBMIT.equals(req.getAction())) {
+        if (b && ActionEnum.SUBMIT.getCode().equals(req.getAction())) {
             ThreadPoolUtil.getInstance().execute(()->{
                 log.info("send email to manager!");
                 // todo 邮件发送，这里先用伪代码替代
             });
         }
-        return null;
+        if (b) {
+            return ResultDTO.success(b);
+        } else {
+            return ResultDTO.failure(ErrorInfo.ERROR_UNKNOWN_ERROR);
+        }
+    }
+
+    private static void validatorParam(LeaveRequestDTO req) {
+        Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR, req.getAction());
+        ActionEnum action = ActionEnum.query(req.getAction());
+        Assert.assertNotNull(ErrorInfo.ERROR_ACTION_NOT_SUPPORT,action);
+        switch (action){
+            case EDIT:
+            case CANCEL:
+                Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR, req.getFormId());
+                break;
+            case SUBMIT:
+                Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR, req.getStartTime());
+                Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR, req.getEndTime());
+                Assert.assertNotEmpty(ErrorInfo.ERROR_PARAM_ERROR, req.getReason());
+        }
     }
 
 

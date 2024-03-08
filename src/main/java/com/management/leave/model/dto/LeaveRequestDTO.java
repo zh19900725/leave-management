@@ -1,10 +1,6 @@
 package com.management.leave.model.dto;
 
-import com.management.leave.common.enums.ActionEnum;
-import com.management.leave.common.enums.StatusEnum;
 import lombok.Data;
-
-import java.util.Date;
 
 /**
  * 请假请求参数
@@ -15,7 +11,7 @@ public class LeaveRequestDTO {
     /**
      * action about leave form
      */
-    private ActionEnum action;
+    private String action;
 
     /**
      * When submit a leave form,please ignore this attribute
@@ -24,21 +20,13 @@ public class LeaveRequestDTO {
     private Integer formId;
 
     /**
-     * employee user id
+     * leave start time,timeStamp ms
      */
-    private String applicantId;
+    private long startTime;
     /**
-     * leave start time
+     * end start time ,timeStamp ms
      */
-    private Date startTime;
-    /**
-     * end start time
-     */
-    private Date endTime;
-    /**
-     * form status
-     */
-    private StatusEnum status;
+    private long endTime;
     /**
      * leave reason
      */

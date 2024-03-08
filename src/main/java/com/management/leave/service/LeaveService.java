@@ -1,6 +1,7 @@
 package com.management.leave.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.management.leave.common.enums.ActionEnum;
 import com.management.leave.common.enums.StatusEnum;
 import com.management.leave.common.util.CommonUtils;
 import com.management.leave.db.entity.TEmployeeEntity;
@@ -52,11 +53,17 @@ public class LeaveService {
         log.info("addOrUpdateLeaveForm params: {}",leaveRequestDTO);
         TLeaveFormEntity leaveForm = null;
         int flag = 0;
-        switch (leaveRequestDTO.getAction()) {
+        ActionEnum action = ActionEnum.query(leaveRequestDTO.getAction());
+        Assert.assertNotNull(ErrorInfo.ERROR_ACTION_NOT_SUPPORT, action);
+        switch (action) {
             case EDIT:
                 flag = edit(leaveRequestDTO,loginInfo);
+                break;
             case CANCEL:
-                flag = cancel(leaveRequestDTO.getFormId(),loginInfo);
+                flag = cancelOrDel(leaveRequestDTO.getFormId(),loginInfo.getUserName(),StatusEnum.CANCEL);
+                break;
+            case DELETE:
+                flag = cancelOrDel(leaveRequestDTO.getFormId(),loginInfo.getUserName(),StatusEnum.CLOSE);
                 break;
             case SUBMIT:
                 // 查询申请人信息
@@ -74,34 +81,42 @@ public class LeaveService {
      * @param leaveRequestDTO
      * @return
      */
-    public int edit(LeaveRequestDTO leaveRequestDTO, EmployeeInfo loginInfo) {
+    public int edit(LeaveRequestDTO leaveRequestDTO,EmployeeInfo loginUser) {
         log.info("edit leave form, params: {}",leaveRequestDTO);
         int flag;
         TLeaveFormEntity leaveForm = leaveFormServiceDao.getBaseMapper().selectById(leaveRequestDTO.getFormId());
         Assert.assertNotNull(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm);
+        Assert.assertTrue(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm.getRowStatus()==0);
+        // 只有申请人可以编辑请假单，其他人的编辑请求驳回
+        Assert.assertTrue(ErrorInfo.ERROR_NO_PERMISSION,leaveForm.getApplicantId()==loginUser.getUserId());
+
         leaveForm.setUpdateTime(new Date());
         leaveForm.setReason(leaveRequestDTO.getReason());
-        leaveForm.setStartTime(leaveRequestDTO.getStartTime());
-        leaveForm.setEndTime(leaveRequestDTO.getEndTime());
-        leaveForm.setCurOperator(loginInfo.getUserName());
+        leaveForm.setStartTime(new Date(leaveRequestDTO.getStartTime()));
+        leaveForm.setEndTime(new Date(leaveRequestDTO.getEndTime()));
+        leaveForm.setCurOperator(loginUser.getUserName());
         flag = leaveFormServiceDao.getBaseMapper().updateById(leaveForm);
         log.info("edit leave form, result: {}",flag);
         return flag;
     }
 
     /**
-     * 更改请假单状态，撤销、驳回或审批通过
+     * 撤回或者删除请假单
      * @param formId 请假单id
      * @return
      */
-    public int cancel(Integer formId, EmployeeInfo loginInfo) {
+    public int cancelOrDel(Integer formId, String operatorName,StatusEnum statusEnum) {
         log.info("change leave form status, params: formId={}",formId);
         int flag;
         TLeaveFormEntity leaveForm = leaveFormServiceDao.getBaseMapper().selectById(formId);
         Assert.assertNotNull(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm);
-        leaveForm.setStatus(StatusEnum.CANCEL.getCode());
-        leaveForm.setCurOperator(loginInfo.getUserName());
+        Assert.assertTrue(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm.getRowStatus()==0);
+        leaveForm.setStatus(statusEnum.getCode());
+        leaveForm.setCurOperator(operatorName);
         leaveForm.setUpdateTime(new Date());
+        if (StatusEnum.CLOSE.equals(statusEnum)) {
+            leaveForm.setRowStatus(0);
+        }
         flag = leaveFormServiceDao.getBaseMapper().updateById(leaveForm);
         log.info("change leave form status, result:{},",flag);
         return flag;
@@ -119,6 +134,8 @@ public class LeaveService {
         ApprovalRes approvalRes = new ApprovalRes();
         TLeaveFormEntity leaveForm = leaveFormServiceDao.getBaseMapper().selectById(approvalDTO.getFormId());
         Assert.assertNotNull(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm);
+        Assert.assertTrue(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm.getRowStatus()==0);
+
         leaveForm.setStatus(approvalDTO.getChangeStatus().getCode());
         if (StatusEnum.WAITE_FIRST_CONFIRM.getCode().equals(leaveForm.getStatus())){
             // 如果1级审批人，更新1级审批人批语
@@ -158,51 +175,59 @@ public class LeaveService {
      */
     public int insert(EmployeeInfo loginInfo, LeaveRequestDTO leaveRequestDTO) {
         int flag;
-        TEmployeeEntity tEmployeeEntity = employeeServiceIDao.getBaseMapper().selectById(leaveRequestDTO.getApplicantId());
-        Assert.assertNotNull(ErrorInfo.ERROR_APPLICANT_NOT_EXIST, tEmployeeEntity);
-
-        QueryWrapper<TLeaveFormEntity> wrapper = new QueryWrapper<>();
-        wrapper.eq("employee_name", tEmployeeEntity.getEmployeeName());
-        wrapper.eq("start_time", leaveRequestDTO.getStartTime());
-        wrapper.eq("end_time", leaveRequestDTO.getEndTime());
-        TLeaveFormEntity leaveFormEntity = leaveFormServiceDao.getBaseMapper().selectOne(wrapper);
-        // 如果请假单已经存在了返回报错
-        Assert.assertTrue(ErrorInfo.ERROR_LEAVE_IS_STILL_EXIST, leaveFormEntity == null);
+        TEmployeeEntity tEmployeeEntity = employeeServiceIDao.getBaseMapper().selectById(loginInfo.getUserId());
+        Assert.assertNotNull(ErrorInfo.ERROR_USER_NOT_EXIST, tEmployeeEntity);
+        Assert.assertTrue(ErrorInfo.ERROR_USER_NOT_EXIST, tEmployeeEntity.getRowStatus()==0);
+        checkExist(leaveRequestDTO, tEmployeeEntity.getId());
 
         // 请假单不存在，创建请假单
-        leaveFormEntity = new TLeaveFormEntity();
-        leaveFormEntity.setApplicantId(leaveRequestDTO.getApplicantId());
+        TLeaveFormEntity leaveFormEntity = new TLeaveFormEntity();
+        leaveFormEntity.setApplicantId(loginInfo.getUserId());
         leaveFormEntity.setCreateTime(new Date());
         leaveFormEntity.setUpdateTime(new Date());
         leaveFormEntity.setStatus(StatusEnum.WAITE_FIRST_CONFIRM.getCode());
-        leaveFormEntity.setStartTime(leaveRequestDTO.getStartTime());
-        leaveFormEntity.setEndTime(leaveRequestDTO.getEndTime());
+        leaveFormEntity.setStartTime(new Date(leaveRequestDTO.getStartTime()));
+        leaveFormEntity.setEndTime(new Date(leaveRequestDTO.getEndTime()));
         leaveFormEntity.setReason(leaveRequestDTO.getReason());
         leaveFormEntity.setFirstApprover(tEmployeeEntity.getSuperiorId());
         leaveFormEntity.setCurOperator(loginInfo.getUserName());
         flag = leaveFormServiceDao.getBaseMapper().insert(leaveFormEntity);
         return flag;
     }
-    
+
+    public List<TLeaveFormEntity> checkExist(LeaveRequestDTO leaveRequestDTO, Integer employeeId) {
+        QueryWrapper<TLeaveFormEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("applicant_Id", employeeId);
+        wrapper.le("start_time", new Date(leaveRequestDTO.getStartTime()));
+        wrapper.ge("end_time", new Date(leaveRequestDTO.getEndTime()));
+        wrapper.eq("row_status", 0);
+        List<TLeaveFormEntity> list = leaveFormServiceDao.getBaseMapper().selectList(wrapper);
+        // 如果已经存在请假单包含了这个段请假时间，返回报错
+        Assert.assertTrue(ErrorInfo.ERROR_LEAVE_IS_STILL_EXIST, list == null);
+        return list;
+    }
+
     public List<TLeaveFormEntity> getLeaveFormList(LeaveFormListDTO req){
         log.info("getLeaveFormList req {}",req);
         TEmployeeEntity tEmployeeEntity = employeeServiceIDao.getBaseMapper().selectById(req.getUserId());
-        Assert.assertNotNull(ErrorInfo.ERROR_APPLICANT_NOT_EXIST, tEmployeeEntity);
-        
+        Assert.assertNotNull(ErrorInfo.ERROR_USER_NOT_EXIST, tEmployeeEntity);
+        Assert.assertTrue(ErrorInfo.ERROR_USER_NOT_EXIST, tEmployeeEntity.getRowStatus()==0);
+
         QueryWrapper<TLeaveFormEntity> wrapper = new QueryWrapper<>();
         if (!StringUtils.isEmpty(tEmployeeEntity.getEmployeeName())){
             wrapper.eq("employee_name", tEmployeeEntity.getEmployeeName());
         }
-        if ( null!=req.getStartTime()){
-            wrapper.ge("start_time", req.getStartTime());
+        if ( req.getStartTime()>0){
+            wrapper.ge("start_time", new Date(req.getStartTime()));
         }
-        if ( null!=req.getEndTime()){
-            wrapper.le("end_time", req.getEndTime());
+        if ( req.getEndTime()>0){
+            wrapper.le("end_time", new Date(req.getEndTime()));
         }
         if (null!=req.getStatus()){
             wrapper.le("status", req.getStatus());
-
         }
+        wrapper.eq("row_status", "0");
+
         List<TLeaveFormEntity> tLeaveFormEntities = leaveFormServiceDao.getBaseMapper().selectList(wrapper);
         log.debug("getLeaveFormList res {}",tLeaveFormEntities);
         return tLeaveFormEntities;

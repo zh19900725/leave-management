@@ -19,7 +19,7 @@ public interface LeaveServiceApi {
      * @param req addOrUpdateForm request object
      * @return
      */
-    ResultDTO<String> addOrUpdateForm(HttpServletRequest request, LeaveRequestDTO req);
+    ResultDTO<Boolean> addOrUpdateForm(HttpServletRequest request, LeaveRequestDTO req);
 
 
     /**

@@ -15,6 +15,7 @@ public enum StatusEnum {
     REJECTED("TurnDown","审批人驳回"),
     AGREEMENT("Agreement","审批人通过审批"),
     CANCEL("Cancel","用户撤销"),
+    CLOSE("CLOSE","删除"),
     ;
     String code;
     String desc;

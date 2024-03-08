@@ -84,5 +84,10 @@ public class TLeaveFormEntity {
      */
     private String curOperator;
 
+    /**
+     * 状态：0正常，1删除
+     */
+    private int rowStatus;
+
 
 }
