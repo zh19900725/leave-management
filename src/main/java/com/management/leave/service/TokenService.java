@@ -46,6 +46,11 @@ public class TokenService {
         return token;
     }
 
+    /**
+     * check token
+     * @param token
+     * @return
+     */
     public EmployeeInfo tokenVerify(String token) {
         EmployeeInfo employeeInfo = null;
         try {

@@ -207,6 +207,12 @@ public class LeaveService {
         return list;
     }
 
+
+    /**
+     * 查询请假单列表
+     * @param req
+     * @return
+     */
     public List<TLeaveFormEntity> getLeaveFormList(LeaveFormListDTO req){
         log.info("getLeaveFormList req {}",req);
         TEmployeeEntity tEmployeeEntity = employeeServiceIDao.getBaseMapper().selectById(req.getUserId());

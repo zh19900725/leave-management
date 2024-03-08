@@ -26,8 +26,16 @@ public class EmployeeService {
         return tEmployeeEntity;
     }
 
+    /**
+     * query employee by Id
+     * @param id
+     * @return
+     */
     public TEmployeeEntity queryEmployeeById(String id){
         TEmployeeEntity tEmployeeEntity = employeeServiceDao.getBaseMapper().selectById(id);
+        if (tEmployeeEntity.getRowStatus()==0) {
+            return null;
+        }
         return tEmployeeEntity;
     }
 
