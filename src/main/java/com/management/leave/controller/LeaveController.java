@@ -16,6 +16,7 @@ import com.management.leave.model.pojo.EmployeeInfo;
 import com.management.leave.service.LeaveService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,8 +36,8 @@ public class LeaveController implements LeaveServiceApi {
     LeaveService leaveService;
 
     @Override
-    @PostMapping("/addOrUpdateForm")
-    public ResultDTO<Boolean> addOrUpdateForm(HttpServletRequest request, LeaveRequestDTO req) {
+    @PostMapping("/addOrUpdate")
+    public ResultDTO<Boolean> addOrUpdateForm(HttpServletRequest request,@Validated LeaveRequestDTO req) {
         // 参数校验
         validatorParam(req);
         EmployeeInfo loginInfo = CommonUtils.getLoginInfo(request);
@@ -63,6 +64,7 @@ public class LeaveController implements LeaveServiceApi {
         switch (action){
             case EDIT:
             case CANCEL:
+            case DELETE:
                 Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR, req.getFormId());
                 break;
             case SUBMIT:
@@ -75,7 +77,7 @@ public class LeaveController implements LeaveServiceApi {
 
     @Override
     @PostMapping("/approval")
-    public ResultDTO<Boolean> approval(HttpServletRequest request, ApprovalReqDTO req) {
+    public ResultDTO<Boolean> approval(HttpServletRequest request,@Validated ApprovalReqDTO req) {
         // 参数校验
         EmployeeInfo loginInfo = CommonUtils.getLoginInfo(request);
         Assert.assertNotNull(ErrorInfo.ERROR_UNKNOWN_ERROR,loginInfo);
@@ -105,8 +107,8 @@ public class LeaveController implements LeaveServiceApi {
     }
 
     @Override
-    @PostMapping("/LeaveFormList")
-    public ResultDTO<List<LeaveResDTO>> leaveFormList(LeaveFormListResDTO req) {
+    @PostMapping("/forms")
+    public ResultDTO<List<LeaveResDTO>> leaveFormList(@Validated LeaveFormListResDTO req) {
         // 查询数据库，返回请假申请记录列表
         return ResultDTO.success(leaveService.getLeaveFormList(req));
     }
