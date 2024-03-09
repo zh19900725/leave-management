@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ *  mybatis plus generator
  * @author zh
  */
 public class MyBatisPlusGenerator {
@@ -22,13 +23,18 @@ public class MyBatisPlusGenerator {
         generator.execute();
     }
 
+    /**
+     * automatically generator code
+     * @param tableNames
+     * @return
+     */
     private static FastAutoGenerator create(List<String> tableNames) {
         // 数据库连接地址，
-        String url = "jdbc:mysql://9.135.223.65:3306/leave_management";
+        String url = System.getenv("MYSQL_URL");
         // 数据库用户名
-        String name = "root";
+        String name = System.getenv("MYSQL_USER_NAME");
         // 数据库密码
-        String password = "q1w2e3r4!";
+        String password = System.getenv("MYSQL_PASSWORD");
         FastAutoGenerator generator = FastAutoGenerator.create(url, name, password)
                 // 全局配置
                 .globalConfig(builder -> {
@@ -71,7 +77,8 @@ public class MyBatisPlusGenerator {
                             .serviceBuilder().convertServiceFileName(entityName -> entityName.substring(1)  + "ServiceIDao")
                             // 指定生成的serviceImpl的名称
                             .convertServiceImplFileName(entityName -> entityName.substring(1)  + "ServiceDao");
-
+                    builder.mapperBuilder()
+                            .convertMapperFileName(mapperName-> mapperName.substring(1)+"Mapper");
                 }).templateConfig(builder -> {
                     // 不生成Controller
                     builder.disable(TemplateType.CONTROLLER);
