@@ -1,6 +1,5 @@
 package com.management.leave.model.dto;
 
-import com.management.leave.common.enums.StatusEnum;
 import lombok.Data;
 
 /**
@@ -8,11 +7,17 @@ import lombok.Data;
  * @author zh
  */
 @Data
-public class LeaveFormListDTO {
+public class LeaveFormListResDTO {
     /**
-     * employee user id
+     * applicant id
      */
-    private Integer userId;
+    private Integer applicantId;
+
+    /**
+     * approver id
+     */
+    private Integer approverId;
+
     /**
      * leave start time,timeStamp ms
      */
@@ -24,5 +29,5 @@ public class LeaveFormListDTO {
     /**
      * form status
      */
-    private StatusEnum status;
+    private String status;
 }

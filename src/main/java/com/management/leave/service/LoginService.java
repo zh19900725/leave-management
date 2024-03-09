@@ -4,7 +4,7 @@ import com.management.leave.common.constats.Constants;
 import com.management.leave.dao.entity.EmployeeEntity;
 import com.management.leave.exception.Assert;
 import com.management.leave.exception.ErrorInfo;
-import com.management.leave.model.dto.LoginReq;
+import com.management.leave.model.dto.LoginReqDTO;
 import com.management.leave.model.pojo.EmployeeInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class LoginService  {
      * @param req
      * @return
      */
-    public String login(LoginReq req) {
+    public String login(LoginReqDTO req) {
         log.info("login info {}",req);
         // 查询验证码是否存在
         String key=Constants.LOGIN_PHONE_CODE+ req.getSmsCode();
@@ -60,7 +60,7 @@ public class LoginService  {
      * @param mobile
      * @return
      */
-    public String sendCode(String mobile){
+    public void sendCode(String mobile){
         log.info("send code req {}",mobile);
         //setNX 并发锁防止频繁请求验证码,锁定5分钟
         String lockKey= Constants.SEND_CODE_LOCK +mobile;
@@ -68,10 +68,13 @@ public class LoginService  {
         redis.expire(lockKey,5,TimeUnit.MINUTES);
 
         // 生成短信验证码
-        // todo 这里发送手机验证码，用伪代码代替,getRandomStr模拟生成了一个8位随机验证码
         String code = String.valueOf((int) ((Math.random() * 9 + 1) * 100000 + 1) );
+
+        // todo 这里发送手机验证码，用伪代码代替
+        log.info("call the sms service ...");
+        log.info("a sms code {} send to {} success!",code,mobile);
+
+        // sms code存入缓存，1分钟有效期
         redis.opsForValue().set( Constants.LOGIN_PHONE_CODE+ code,mobile,60, TimeUnit.SECONDS);
-        log.info("send code res {}",code);
-        return code;
     }
 }

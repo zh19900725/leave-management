@@ -4,6 +4,8 @@ import com.management.leave.model.dto.ResultDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -42,6 +44,20 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(resultModel, HttpStatus.OK);
     }
 
+
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public ResponseEntity<ResultDTO> handleValidException(MethodArgumentNotValidException e) {
+        log.error("data check error {}，exception class:{}", e.getMessage(), e.getClass());
+        BindingResult bindingResult = e.getBindingResult();
+        StringBuffer errorMsg = new StringBuffer();
+        bindingResult.getFieldErrors().forEach(item->{
+            if (!errorMsg.toString().contains(item.getDefaultMessage())) {
+                errorMsg.append(item.getDefaultMessage()).append(",");
+            }
+        });
+        ResultDTO resultModel = ResultDTO.failure(errorMsg.substring(0,errorMsg.length()-1),ErrorInfo.ERROR_PARAM_ERROR.getErrorCode());
+        return new ResponseEntity<>(resultModel, HttpStatus.OK);
+    }
 
     /**
      * process unKnow exception

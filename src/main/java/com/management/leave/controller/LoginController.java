@@ -1,16 +1,15 @@
 package com.management.leave.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.management.leave.api.LoginServiceApi;
-import com.management.leave.exception.Assert;
 import com.management.leave.exception.ErrorInfo;
-import com.management.leave.model.dto.LoginReq;
+import com.management.leave.model.dto.LoginReqDTO;
 import com.management.leave.model.dto.ResultDTO;
+import com.management.leave.model.dto.SmsReqDTO;
 import com.management.leave.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,11 +24,7 @@ public class LoginController implements LoginServiceApi {
 
     @PostMapping("/login")
     @Override
-    public ResultDTO<String> login(LoginReq req) {
-        // 参数校验
-        Assert.assertNotEmpty(ErrorInfo.ERROR_PARAM_ERROR,req.getUserName());
-        Assert.assertNotEmpty(ErrorInfo.ERROR_PARAM_ERROR,req.getMobile());
-        Assert.assertNotEmpty(ErrorInfo.ERROR_PARAM_ERROR,req.getSmsCode());
+    public ResultDTO<String> login(@Validated LoginReqDTO req) {
         String token = loginService.login(req);
         if (!StringUtils.isEmpty(token)) {
             return ResultDTO.success(token);
@@ -40,15 +35,8 @@ public class LoginController implements LoginServiceApi {
 
     @PostMapping("/sendCode")
     @Override
-    public ResultDTO<String> sendCode(@RequestBody(required = true) JSONObject phone) {
-        // 参数校验
-        String mobile = phone.getString("mobile");
-        Assert.assertNotEmpty(ErrorInfo.ERROR_PARAM_ERROR, mobile);
-        String code = loginService.sendCode(mobile);
-        if (!StringUtils.isEmpty(code)) {
-            return ResultDTO.success(code);
-        } else {
-            return ResultDTO.failure(ErrorInfo.ERROR_UNKNOWN_ERROR);
-        }
+    public ResultDTO<Boolean> sendCode(@Validated SmsReqDTO req) {
+        loginService.sendCode(req.getMobile());
+        return ResultDTO.success(true);
     }
 }

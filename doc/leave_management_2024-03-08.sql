@@ -63,7 +63,7 @@ CREATE TABLE `t_leave_form` (
   `applicant_Id` varchar(20) DEFAULT NULL COMMENT '申请人，对应员工表的员工id',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '请假单创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '请假单更新时间',
-  `status` varchar(15) DEFAULT 'FirstConfirm' COMMENT '请假单状态，默认为待1级确认',
+  `status` varchar(50) DEFAULT 'WAITE_FIRST_CONFIRM' COMMENT '请假单状态，默认为待1级确认',
   `start_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '请假开始时间',
   `end_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '请假结束时间',
   `reason` varchar(100) DEFAULT '' COMMENT '请假原因',

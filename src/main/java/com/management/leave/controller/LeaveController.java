@@ -6,8 +6,9 @@ import com.management.leave.common.util.CommonUtils;
 import com.management.leave.common.util.ThreadPoolUtil;
 import com.management.leave.exception.Assert;
 import com.management.leave.exception.ErrorInfo;
-import com.management.leave.model.dto.ApprovalDTO;
-import com.management.leave.model.dto.LeaveFormListDTO;
+import com.management.leave.model.dto.ApprovalReqDTO;
+import com.management.leave.model.dto.LeaveResDTO;
+import com.management.leave.model.dto.LeaveFormListResDTO;
 import com.management.leave.model.dto.LeaveRequestDTO;
 import com.management.leave.model.dto.ResultDTO;
 import com.management.leave.model.pojo.ApprovalRes;
@@ -74,11 +75,8 @@ public class LeaveController implements LeaveServiceApi {
 
     @Override
     @PostMapping("/approval")
-    public ResultDTO<String> approvalLeaveForm(HttpServletRequest request,ApprovalDTO req) {
+    public ResultDTO<Boolean> approval(HttpServletRequest request, ApprovalReqDTO req) {
         // 参数校验
-        Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR,req.getFormId());
-        Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR,req.getChangeStatus());
-        Assert.assertNotEmpty(ErrorInfo.ERROR_PARAM_ERROR,req.getComments());
         EmployeeInfo loginInfo = CommonUtils.getLoginInfo(request);
         Assert.assertNotNull(ErrorInfo.ERROR_UNKNOWN_ERROR,loginInfo);
         ApprovalRes res = leaveService.approval(req, loginInfo);
@@ -87,28 +85,30 @@ public class LeaveController implements LeaveServiceApi {
                 case 1:
                     // 即时通告：如果是1级审批通过，通知申请人
                     if (res.isNeedNextApproval()){
-                        // todo 邮件和短信发送，通知通知2级审批人进行审批
+                        // todo 邮件和短信发送，通知2级审批人进行审批
+                        log.info("send email to senior manager");
                     } else {
                         // todo 邮件和短信发送，通知申请人申请通过
+                        log.info("application process end ,send result email to applicant");
                     }
                     break;
                 case 2:
                     // 即时通告：如果是2级审批通过，或者请求单被驳回，通知申请人
                     // todo 邮件和短信发送，通知申请人申请通过
+                    log.info("application process end ,send result email to applicant");
+                    break;
                 default:
                     log.error("approval result exception! res={}",res);
             }
         });
-
-        return null;
+        return ResultDTO.success(true);
     }
 
     @Override
     @PostMapping("/LeaveFormList")
-    public ResultDTO<List<LeaveRequestDTO>> leaveFormList(LeaveFormListDTO req) {
+    public ResultDTO<List<LeaveResDTO>> leaveFormList(LeaveFormListResDTO req) {
         // 查询数据库，返回请假申请记录列表
-        leaveService.getLeaveFormList(req);
-        return null;
+        return ResultDTO.success(leaveService.getLeaveFormList(req));
     }
 
 

@@ -22,6 +22,7 @@ public class EmployeeService {
     public EmployeeEntity queryEmployeeByMobile(String phone){
         QueryWrapper<EmployeeEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("mobile", phone);
+        wrapper.eq("row_status", 0);
         EmployeeEntity EmployeeEntity = employeeServiceDao.getBaseMapper().selectOne(wrapper);
         return EmployeeEntity;
     }
@@ -33,9 +34,6 @@ public class EmployeeService {
      */
     public EmployeeEntity queryEmployeeById(String id){
         EmployeeEntity EmployeeEntity = employeeServiceDao.getBaseMapper().selectById(id);
-        if (EmployeeEntity.getRowStatus()==0) {
-            return null;
-        }
         return EmployeeEntity;
     }
 

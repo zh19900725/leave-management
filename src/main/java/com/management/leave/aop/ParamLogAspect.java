@@ -25,7 +25,7 @@ import static com.management.leave.common.constats.Constants.TRACE_ID;
 @Slf4j
 public class ParamLogAspect {
 
-    @Pointcut("within(com.management.leave.controller.LeaveController..*)")
+    @Pointcut("within(com.management.leave.controller..*)")
     public void expression() {
     }
 

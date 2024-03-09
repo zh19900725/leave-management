@@ -61,9 +61,10 @@ public class TokenService {
                 throw new MyException(ErrorInfo.ERROR_TOKEN_EXPIRED);
             }
             employeeInfo = JSONObject.parseObject(jwtParamStr, EmployeeInfo.class);
-            // FIXME 其实这里最好是能有用户信息的缓存，去查redis缓存
-            EmployeeEntity tEmployeeEntity = employeeService.queryEmployeeById(employeeInfo.getUserId());
-            Assert.assertNotNull(ErrorInfo.ERROR_USER_NOT_EXIST,tEmployeeEntity);
+            // FIXME 其实这里最好是去查redis缓存,不过员工信息一般是入职时录入的，请假系统只是demo级暂时不考虑redis缓存
+            EmployeeEntity employeeEntity = employeeService.queryEmployeeById(employeeInfo.getUserId());
+            Assert.assertNotNull(ErrorInfo.ERROR_USER_NOT_EXIST,employeeEntity);
+            Assert.assertTrue(ErrorInfo.ERROR_USER_IS_DELETE,employeeEntity.getRowStatus()==0);
         } catch (JWTDecodeException j) {
             throw new MyException(ErrorInfo.ERROR_TOKEN_CHECK_FAILED);
         }

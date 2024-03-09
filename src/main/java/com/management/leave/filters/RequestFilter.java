@@ -58,7 +58,6 @@ public class RequestFilter implements Filter {
 
             filterChain.doFilter(xssRequestWrapper, servletResponse);
         } catch (Exception e) {
-
             throw e;
         } finally {
             MDC.remove(TRACE_ID);
