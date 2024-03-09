@@ -80,20 +80,6 @@ CREATE TABLE `t_leave_form` (
   KEY `idx_second_approver` (`second_approver`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-LOCK TABLES `t_leave_form` WRITE;
-/*!40000 ALTER TABLE `t_leave_form` DISABLE KEYS */;
-
-INSERT INTO `t_leave_form` (`id`, `applicant_Id`, `create_time`, `update_time`, `status`, `start_time`, `end_time`, `reason`, `first_approver`, `second_approver`, `first_comment`, `second_comment`, `cur_operator`, `row_status`)
-VALUES
-	(1,'1','2024-03-08 09:21:05','2024-03-08 10:14:04','FirstConfirm','2024-03-08 08:53:23','2024-03-08 08:36:43','i want rest',2,0,'','','aarronzhang',-1),
-	(2,'1','2024-03-08 09:31:16','2024-03-08 10:16:38','FirstConfirm','2024-03-08 08:53:23','2024-03-08 08:36:43','i want rest',2,0,'','','aarronzhang',0),
-	(3,'1','2024-03-08 09:34:59','2024-03-08 09:34:59','FirstConfirm','2024-03-08 08:53:23','2024-03-08 08:36:43','i want rest',2,0,'','','aarronzhang',0),
-	(4,'1','2024-03-08 09:37:50','2024-03-08 09:37:50','FirstConfirm','2024-03-08 08:53:23','2024-03-08 08:36:43','i want rest',2,0,'','','aarronzhang',0);
-
-/*!40000 ALTER TABLE `t_leave_form` ENABLE KEYS */;
-UNLOCK TABLES;
-
-
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
