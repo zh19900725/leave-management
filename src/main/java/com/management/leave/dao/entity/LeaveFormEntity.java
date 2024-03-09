@@ -1,12 +1,11 @@
-package com.management.leave.db.entity;
+package com.management.leave.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Date;
 
 /**
  * <p>
@@ -14,12 +13,12 @@ import java.util.Date;
  * </p>
  *
  * @author Auto Generator
- * @since 2024-03-08
+ * @since 2024-03-09
  */
 @Getter
 @Setter
 @TableName("t_leave_form")
-public class TLeaveFormEntity {
+public class LeaveFormEntity {
 
       @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
@@ -85,9 +84,9 @@ public class TLeaveFormEntity {
     private String curOperator;
 
     /**
-     * 状态：0正常，1删除
+     * 状态0正常，1删除
      */
-    private int rowStatus;
+    private Integer rowStatus;
 
 
 }

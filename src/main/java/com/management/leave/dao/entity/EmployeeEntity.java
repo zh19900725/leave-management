@@ -1,12 +1,11 @@
-package com.management.leave.db.entity;
+package com.management.leave.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Date;
 
 /**
  * <p>
@@ -14,12 +13,12 @@ import java.util.Date;
  * </p>
  *
  * @author Auto Generator
- * @since 2024-03-08
+ * @since 2024-03-09
  */
 @Getter
 @Setter
 @TableName("t_employee")
-public class TEmployeeEntity {
+public class EmployeeEntity {
 
       @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
@@ -45,10 +44,14 @@ public class TEmployeeEntity {
     private Integer rowStatus;
 
     /**
-     * 上级主管
+     * 上司
      */
     private Integer superiorId;
 
+    /**
+     * 系统登录密码
+     */
+    private String mobile;
 
     /**
      * 系统登录名
@@ -56,13 +59,9 @@ public class TEmployeeEntity {
     private String loginName;
 
     /**
-     * 邮箱
+     * 员工邮箱
      */
     private String email;
 
-    /**
-     * 电话
-     */
-    private String mobile;
 
 }

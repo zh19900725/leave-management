@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.management.leave.common.enums.ActionEnum;
 import com.management.leave.common.enums.StatusEnum;
 import com.management.leave.common.util.CommonUtils;
-import com.management.leave.db.entity.TEmployeeEntity;
-import com.management.leave.db.entity.TLeaveFormEntity;
-import com.management.leave.db.service.impl.TEmployeeServiceDao;
-import com.management.leave.db.service.impl.TLeaveFormServiceDao;
+import com.management.leave.dao.entity.EmployeeEntity;
+import com.management.leave.dao.entity.LeaveFormEntity;
+import com.management.leave.dao.service.impl.EmployeeServiceDao;
+import com.management.leave.dao.service.impl.LeaveFormServiceDao;
 import com.management.leave.exception.Assert;
 import com.management.leave.exception.ErrorInfo;
 import com.management.leave.exception.MyException;
@@ -35,10 +35,10 @@ import java.util.List;
 public class LeaveService {
 
     @Autowired
-    TEmployeeServiceDao employeeServiceIDao;
+    EmployeeServiceDao employeeServiceIDao;
 
     @Autowired
-    TLeaveFormServiceDao leaveFormServiceDao;
+    LeaveFormServiceDao leaveFormServiceDao;
 
 
     /**
@@ -51,7 +51,7 @@ public class LeaveService {
     @Transactional(rollbackFor= MyException.class)
     public boolean addOrUpdateLeaveForm(EmployeeInfo loginInfo, LeaveRequestDTO leaveRequestDTO) throws MyException {
         log.info("addOrUpdateLeaveForm params: {}",leaveRequestDTO);
-        TLeaveFormEntity leaveForm = null;
+        LeaveFormEntity leaveForm = null;
         int flag = 0;
         ActionEnum action = ActionEnum.query(leaveRequestDTO.getAction());
         Assert.assertNotNull(ErrorInfo.ERROR_ACTION_NOT_SUPPORT, action);
@@ -84,7 +84,7 @@ public class LeaveService {
     public int edit(LeaveRequestDTO leaveRequestDTO,EmployeeInfo loginUser) {
         log.info("edit leave form, params: {}",leaveRequestDTO);
         int flag;
-        TLeaveFormEntity leaveForm = leaveFormServiceDao.getBaseMapper().selectById(leaveRequestDTO.getFormId());
+        LeaveFormEntity leaveForm = leaveFormServiceDao.getBaseMapper().selectById(leaveRequestDTO.getFormId());
         Assert.assertNotNull(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm);
         Assert.assertTrue(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm.getRowStatus()==0);
         // 只有申请人可以编辑请假单，其他人的编辑请求驳回
@@ -108,7 +108,7 @@ public class LeaveService {
     public int cancelOrDel(Integer formId, String operatorName,StatusEnum statusEnum) {
         log.info("change leave form status, params: formId={}",formId);
         int flag;
-        TLeaveFormEntity leaveForm = leaveFormServiceDao.getBaseMapper().selectById(formId);
+        LeaveFormEntity leaveForm = leaveFormServiceDao.getBaseMapper().selectById(formId);
         Assert.assertNotNull(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm);
         Assert.assertTrue(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm.getRowStatus()==0);
         leaveForm.setStatus(statusEnum.getCode());
@@ -132,7 +132,7 @@ public class LeaveService {
     public ApprovalRes approval(ApprovalDTO approvalDTO, EmployeeInfo loginInfo){
         log.info("approval leave form, params: {},",approvalDTO);
         ApprovalRes approvalRes = new ApprovalRes();
-        TLeaveFormEntity leaveForm = leaveFormServiceDao.getBaseMapper().selectById(approvalDTO.getFormId());
+        LeaveFormEntity leaveForm = leaveFormServiceDao.getBaseMapper().selectById(approvalDTO.getFormId());
         Assert.assertNotNull(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm);
         Assert.assertTrue(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm.getRowStatus()==0);
 
@@ -175,13 +175,13 @@ public class LeaveService {
      */
     public int insert(EmployeeInfo loginInfo, LeaveRequestDTO leaveRequestDTO) {
         int flag;
-        TEmployeeEntity tEmployeeEntity = employeeServiceIDao.getBaseMapper().selectById(loginInfo.getUserId());
-        Assert.assertNotNull(ErrorInfo.ERROR_USER_NOT_EXIST, tEmployeeEntity);
-        Assert.assertTrue(ErrorInfo.ERROR_USER_NOT_EXIST, tEmployeeEntity.getRowStatus()==0);
-        checkExist(leaveRequestDTO, tEmployeeEntity.getId());
+        EmployeeEntity employeeEntity = employeeServiceIDao.getBaseMapper().selectById(loginInfo.getUserId());
+        Assert.assertNotNull(ErrorInfo.ERROR_USER_NOT_EXIST, employeeEntity);
+        Assert.assertTrue(ErrorInfo.ERROR_USER_NOT_EXIST, employeeEntity.getRowStatus()==0);
+        checkExist(leaveRequestDTO, employeeEntity.getId());
 
         // 请假单不存在，创建请假单
-        TLeaveFormEntity leaveFormEntity = new TLeaveFormEntity();
+        LeaveFormEntity leaveFormEntity = new LeaveFormEntity();
         leaveFormEntity.setApplicantId(loginInfo.getUserId());
         leaveFormEntity.setCreateTime(new Date());
         leaveFormEntity.setUpdateTime(new Date());
@@ -189,19 +189,19 @@ public class LeaveService {
         leaveFormEntity.setStartTime(new Date(leaveRequestDTO.getStartTime()));
         leaveFormEntity.setEndTime(new Date(leaveRequestDTO.getEndTime()));
         leaveFormEntity.setReason(leaveRequestDTO.getReason());
-        leaveFormEntity.setFirstApprover(tEmployeeEntity.getSuperiorId());
+        leaveFormEntity.setFirstApprover(employeeEntity.getSuperiorId());
         leaveFormEntity.setCurOperator(loginInfo.getUserName());
         flag = leaveFormServiceDao.getBaseMapper().insert(leaveFormEntity);
         return flag;
     }
 
-    public List<TLeaveFormEntity> checkExist(LeaveRequestDTO leaveRequestDTO, Integer employeeId) {
-        QueryWrapper<TLeaveFormEntity> wrapper = new QueryWrapper<>();
+    public List<LeaveFormEntity> checkExist(LeaveRequestDTO leaveRequestDTO, Integer employeeId) {
+        QueryWrapper<LeaveFormEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("applicant_Id", employeeId);
         wrapper.le("start_time", new Date(leaveRequestDTO.getStartTime()));
         wrapper.ge("end_time", new Date(leaveRequestDTO.getEndTime()));
         wrapper.eq("row_status", 0);
-        List<TLeaveFormEntity> list = leaveFormServiceDao.getBaseMapper().selectList(wrapper);
+        List<LeaveFormEntity> list = leaveFormServiceDao.getBaseMapper().selectList(wrapper);
         // 如果已经存在请假单包含了这个段请假时间，返回报错
         Assert.assertTrue(ErrorInfo.ERROR_LEAVE_IS_STILL_EXIST, list == null);
         return list;
@@ -213,15 +213,15 @@ public class LeaveService {
      * @param req
      * @return
      */
-    public List<TLeaveFormEntity> getLeaveFormList(LeaveFormListDTO req){
+    public List<LeaveFormEntity> getLeaveFormList(LeaveFormListDTO req){
         log.info("getLeaveFormList req {}",req);
-        TEmployeeEntity tEmployeeEntity = employeeServiceIDao.getBaseMapper().selectById(req.getUserId());
-        Assert.assertNotNull(ErrorInfo.ERROR_USER_NOT_EXIST, tEmployeeEntity);
-        Assert.assertTrue(ErrorInfo.ERROR_USER_NOT_EXIST, tEmployeeEntity.getRowStatus()==0);
+        EmployeeEntity employeeEntity = employeeServiceIDao.getBaseMapper().selectById(req.getUserId());
+        Assert.assertNotNull(ErrorInfo.ERROR_USER_NOT_EXIST, employeeEntity);
+        Assert.assertTrue(ErrorInfo.ERROR_USER_NOT_EXIST, employeeEntity.getRowStatus()==0);
 
-        QueryWrapper<TLeaveFormEntity> wrapper = new QueryWrapper<>();
-        if (!StringUtils.isEmpty(tEmployeeEntity.getEmployeeName())){
-            wrapper.eq("employee_name", tEmployeeEntity.getEmployeeName());
+        QueryWrapper<LeaveFormEntity> wrapper = new QueryWrapper<>();
+        if (!StringUtils.isEmpty(employeeEntity.getEmployeeName())){
+            wrapper.eq("employee_name", employeeEntity.getEmployeeName());
         }
         if ( req.getStartTime()>0){
             wrapper.ge("start_time", new Date(req.getStartTime()));
@@ -234,7 +234,7 @@ public class LeaveService {
         }
         wrapper.eq("row_status", "0");
 
-        List<TLeaveFormEntity> tLeaveFormEntities = leaveFormServiceDao.getBaseMapper().selectList(wrapper);
+        List<LeaveFormEntity> tLeaveFormEntities = leaveFormServiceDao.getBaseMapper().selectList(wrapper);
         log.debug("getLeaveFormList res {}",tLeaveFormEntities);
         return tLeaveFormEntities;
     }

@@ -3,18 +3,17 @@ package com.management.leave.service;
 import com.management.leave.base.BaseSpringTest;
 import com.management.leave.common.enums.ActionEnum;
 import com.management.leave.common.enums.StatusEnum;
-import com.management.leave.db.entity.TLeaveFormEntity;
+import com.management.leave.dao.entity.LeaveFormEntity;
 import com.management.leave.model.dto.LeaveRequestDTO;
 import com.management.leave.model.pojo.EmployeeInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * 白盒测试
@@ -23,6 +22,8 @@ import static org.junit.Assert.*;
 public class LeaveServiceTest extends BaseSpringTest {
     @Autowired
     LeaveService leaveService;
+    @Value("${spring.datasource.password}")
+    private String mysqlPd;
     static EmployeeInfo employeeInfo = new EmployeeInfo();
     static LeaveRequestDTO leaveRequestDTO = new LeaveRequestDTO();
 
@@ -35,6 +36,11 @@ public class LeaveServiceTest extends BaseSpringTest {
         LeaveRequestDTO leaveRequestDTO = new LeaveRequestDTO();
         leaveRequestDTO.setStartTime(1709888003086l);
         leaveRequestDTO.setEndTime(1709887003087l);
+    }
+
+    @Test
+    public void TestEnv(){
+        System.out.println(mysqlPd);
     }
 
     @Test
@@ -99,7 +105,7 @@ public class LeaveServiceTest extends BaseSpringTest {
         leaveRequestDTO.setAction(ActionEnum.SUBMIT.getCode());
         leaveRequestDTO.setStartTime(1709888003086l);
         leaveRequestDTO.setEndTime(1709887003086l);
-        List<TLeaveFormEntity> tLeaveFormEntities = leaveService.checkExist(leaveRequestDTO, 1);
+        List<LeaveFormEntity> tLeaveFormEntities = leaveService.checkExist(leaveRequestDTO, 1);
         Assert.isTrue(CollectionUtils.isEmpty(tLeaveFormEntities));
         // 异常异常场景 ，将这个相同数据再插入一次，应该要报错
         tLeaveFormEntities = leaveService.checkExist(leaveRequestDTO, 1);

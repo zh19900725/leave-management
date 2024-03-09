@@ -11,7 +11,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
  */
 @ServletComponentScan
 @Aspect
-@MapperScan("com.management.leave.db.mapper")
+@MapperScan("com.management.leave.dao.mapper")
 @SpringBootApplication(scanBasePackages = {"com.management.leave"})
 public class BootApplication {
     public static void main(String[] args) {

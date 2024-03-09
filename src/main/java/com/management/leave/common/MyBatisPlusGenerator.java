@@ -48,7 +48,7 @@ public class MyBatisPlusGenerator {
                 // 生成的代码包路径配置
                 .packageConfig(builder -> {
                     // 生成的代包公共路径
-                    builder.parent("com.management.leave.db");
+                    builder.parent("com.management.leave.dao");
                     // 生成的mapper xml的存放目录，是在parent路径下面的
                     builder.xml("mapper")
                             // 生成的实例类目录
@@ -71,6 +71,8 @@ public class MyBatisPlusGenerator {
                             .enableLombok()
                             // 标记实例类的主键生成方式，如果插入时没有指定，刚自动分配一个，默认是雪花算法
                             .idType(IdType.ASSIGN_ID)
+                            .enableTableFieldAnnotation()
+                            .enableLombok()
                             // 指定生成的实体类名称
                             .convertFileName(entityName -> entityName.substring(1) + "Entity")
                             // 指定生成的service接口名称
@@ -78,7 +80,9 @@ public class MyBatisPlusGenerator {
                             // 指定生成的serviceImpl的名称
                             .convertServiceImplFileName(entityName -> entityName.substring(1)  + "ServiceDao");
                     builder.mapperBuilder()
-                            .convertMapperFileName(mapperName-> mapperName.substring(1)+"Mapper");
+                            .convertMapperFileName(mapperName-> mapperName.substring(1)+"Mapper")
+                            .convertXmlFileName(xml -> xml.substring(1)+"Mapper")
+                    ;
                 }).templateConfig(builder -> {
                     // 不生成Controller
                     builder.disable(TemplateType.CONTROLLER);

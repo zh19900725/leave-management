@@ -1,0 +1,23 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="LeaveServiceTest.TestEnv" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+    <module name="leave-management" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.management.leave.service.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <option name="PACKAGE_NAME" value="com.management.leave.service" />
+    <option name="MAIN_CLASS_NAME" value="com.management.leave.service.LeaveServiceTest" />
+    <option name="METHOD_NAME" value="TestEnv" />
+    <option name="TEST_OBJECT" value="method" />
+    <envs>
+      <env name="MYSQL_HOST" value="9.135.223.65:3306" />
+      <env name="MYSQL_USER_NAME" value="root" />
+      <env name="MYSQL_PASSWORD" value="q1w2e3r4!" />
+    </envs>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

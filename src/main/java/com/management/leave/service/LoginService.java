@@ -1,7 +1,7 @@
 package com.management.leave.service;
 
 import com.management.leave.common.constats.Constants;
-import com.management.leave.db.entity.TEmployeeEntity;
+import com.management.leave.dao.entity.EmployeeEntity;
 import com.management.leave.exception.Assert;
 import com.management.leave.exception.ErrorInfo;
 import com.management.leave.model.dto.LoginReq;
@@ -41,7 +41,7 @@ public class LoginService  {
         Assert.assertNotEmpty(ErrorInfo.ERROR_SMS_CODE,s.equals(req.getMobile()));
 
         // 根据手机号查询用户是否存在
-        TEmployeeEntity employee = employeeService.queryEmployeeByMobile(req.getMobile());
+        EmployeeEntity employee = employeeService.queryEmployeeByMobile(req.getMobile());
         Assert.assertNotNull(ErrorInfo.ERROR_USER_NOT_EXIST,employee);
         Assert.assertTrue(ErrorInfo.ERROR_USER_IS_DELETE,employee.getRowStatus()==0);
 

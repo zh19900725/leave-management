@@ -6,7 +6,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.management.leave.db.entity.TEmployeeEntity;
+import com.management.leave.dao.entity.EmployeeEntity;
 import com.management.leave.exception.Assert;
 import com.management.leave.exception.ErrorInfo;
 import com.management.leave.exception.MyException;
@@ -62,7 +62,7 @@ public class TokenService {
             }
             employeeInfo = JSONObject.parseObject(jwtParamStr, EmployeeInfo.class);
             // FIXME 其实这里最好是能有用户信息的缓存，去查redis缓存
-            TEmployeeEntity tEmployeeEntity = employeeService.queryEmployeeById(employeeInfo.getUserId());
+            EmployeeEntity tEmployeeEntity = employeeService.queryEmployeeById(employeeInfo.getUserId());
             Assert.assertNotNull(ErrorInfo.ERROR_USER_NOT_EXIST,tEmployeeEntity);
         } catch (JWTDecodeException j) {
             throw new MyException(ErrorInfo.ERROR_TOKEN_CHECK_FAILED);

@@ -1,8 +1,8 @@
 package com.management.leave.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.management.leave.db.entity.TEmployeeEntity;
-import com.management.leave.db.service.impl.TEmployeeServiceDao;
+import com.management.leave.dao.entity.EmployeeEntity;
+import com.management.leave.dao.service.impl.EmployeeServiceDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,18 +12,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmployeeService {
     @Autowired
-    private TEmployeeServiceDao employeeServiceDao;
+    private EmployeeServiceDao employeeServiceDao;
 
     /**
      * select employee by phone
      * @param phone
      * @return
      */
-    public TEmployeeEntity queryEmployeeByMobile(String phone){
-        QueryWrapper<TEmployeeEntity> wrapper = new QueryWrapper<>();
+    public EmployeeEntity queryEmployeeByMobile(String phone){
+        QueryWrapper<EmployeeEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("mobile", phone);
-        TEmployeeEntity tEmployeeEntity = employeeServiceDao.getBaseMapper().selectOne(wrapper);
-        return tEmployeeEntity;
+        EmployeeEntity EmployeeEntity = employeeServiceDao.getBaseMapper().selectOne(wrapper);
+        return EmployeeEntity;
     }
 
     /**
@@ -31,12 +31,12 @@ public class EmployeeService {
      * @param id
      * @return
      */
-    public TEmployeeEntity queryEmployeeById(String id){
-        TEmployeeEntity tEmployeeEntity = employeeServiceDao.getBaseMapper().selectById(id);
-        if (tEmployeeEntity.getRowStatus()==0) {
+    public EmployeeEntity queryEmployeeById(String id){
+        EmployeeEntity EmployeeEntity = employeeServiceDao.getBaseMapper().selectById(id);
+        if (EmployeeEntity.getRowStatus()==0) {
             return null;
         }
-        return tEmployeeEntity;
+        return EmployeeEntity;
     }
 
 }
