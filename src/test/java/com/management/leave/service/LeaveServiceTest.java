@@ -67,12 +67,6 @@ public class LeaveServiceTest extends BaseSpringTest {
         // 撤销不存在的单子
         i=leaveService.cancelOrDel(1000,"aarronzhang", StatusEnum.CANCEL);
         Assert.isTrue(i==0);
-        // 删除已经存在的单子
-        i=leaveService.cancelOrDel(2,"aarronzhang", StatusEnum.CLOSE);
-        Assert.isTrue(i>0);
-        // 删除不存在的单子
-        i=leaveService.cancelOrDel(1000,"aarronzhang", StatusEnum.CLOSE);
-        Assert.isTrue(i==0);
 
     }
 

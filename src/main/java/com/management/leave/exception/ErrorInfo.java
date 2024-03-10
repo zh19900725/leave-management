@@ -29,6 +29,6 @@ public enum ErrorInfo {
     ERROR_SMS_CODE(10015, " sms code check failed!"),
     ERROR_FORM_STATUS_IS_TERMINATION(10015, "form status is termination!"),
     ;
-    private int errorCode;
-    private String errorMsg;
+    private final int errorCode;
+    private final String errorMsg;
 }

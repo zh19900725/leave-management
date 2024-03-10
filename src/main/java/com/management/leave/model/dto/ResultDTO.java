@@ -11,12 +11,12 @@ import lombok.Data;
 public class ResultDTO<T> {
     private Integer code;
     private String msg;
-    private T Data;
+    private T data;
 
     public ResultDTO(T data) {
         this.code = 0;
         this.msg = "OK";
-        Data = data;
+        this.data = data;
     }
 
     public ResultDTO(Integer code, String msg) {

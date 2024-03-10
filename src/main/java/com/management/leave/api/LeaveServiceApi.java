@@ -1,7 +1,7 @@
 package com.management.leave.api;
 
 import com.management.leave.model.dto.ApprovalReqDTO;
-import com.management.leave.model.dto.LeaveResDTO;
+import com.management.leave.model.dto.LeaveFormListReqDTO;
 import com.management.leave.model.dto.LeaveFormListResDTO;
 import com.management.leave.model.dto.LeaveRequestDTO;
 import com.management.leave.model.dto.ResultDTO;
@@ -9,7 +9,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * function about leave request
@@ -41,6 +40,6 @@ public interface LeaveServiceApi {
      * @param req some query params when query leave form list
      * @return
      */
-    @ApiOperation("查询请假单")
-    ResultDTO<List<LeaveResDTO>> leaveFormList(LeaveFormListResDTO req);
+    @ApiOperation("分页查询请假单")
+    ResultDTO<LeaveFormListResDTO> leaveFormList(LeaveFormListReqDTO req);
 }

@@ -23,8 +23,8 @@ public class EmployeeService {
         QueryWrapper<EmployeeEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("mobile", phone);
         wrapper.eq("row_status", 0);
-        EmployeeEntity EmployeeEntity = employeeServiceDao.getBaseMapper().selectOne(wrapper);
-        return EmployeeEntity;
+        EmployeeEntity employeeEntity = employeeServiceDao.getBaseMapper().selectOne(wrapper);
+        return employeeEntity;
     }
 
     /**
@@ -33,8 +33,8 @@ public class EmployeeService {
      * @return
      */
     public EmployeeEntity queryEmployeeById(String id){
-        EmployeeEntity EmployeeEntity = employeeServiceDao.getBaseMapper().selectById(id);
-        return EmployeeEntity;
+        EmployeeEntity employeeEntity = employeeServiceDao.getBaseMapper().selectById(id);
+        return employeeEntity;
     }
 
 }

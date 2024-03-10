@@ -54,7 +54,7 @@ public class RequestFilter implements Filter {
 
             // prevent xss attach
             HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-            XSSRequestWrapper xssRequestWrapper = new XSSRequestWrapper(httpRequest);
+            XssRequestWrapper xssRequestWrapper = new XssRequestWrapper(httpRequest);
 
             filterChain.doFilter(xssRequestWrapper, servletResponse);
         } catch (Exception e) {

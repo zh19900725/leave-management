@@ -11,29 +11,46 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public enum StatusEnum {
-    REJECTED("REJECTED","审批人驳回",false),
-    AGREEMENT("AGREEMENT","审批人通过审批",false),
+    /**
+     * 表示审批人驳回
+     */
+    REJECTED("REJECTED",true),
 
-    CANCEL("CANCEL","用户撤销",false),
-    CLOSE("CLOSE","删除",true),
+    /**
+     * 审批人通过当前审批（这个状态只表示当前审批人同意，不落库，由后台判断直接SUCCESS还是等待2级审批）
+     */
+    AGREEMENT("AGREEMENT",false),
 
+    /**
+     * 用户撤销申请
+     */
+    CANCEL("CANCEL",true),
 
-    SUCCESS("SUCCESS","流程结束成功",true),
-    WAITE_FIRST_CONFIRM("WAITE_FIRST_CONFIRM", "等待一次审批人审批",false),
-    WAITE_SECOND_CONFIRM("WAITE_SECOND_CONFIRM", "等待二次审批人审批",false),
+    /**
+     * 申请成功，流程结束
+     */
+    SUCCESS("SUCCESS",true),
+
+    /**
+     * 请求一级审批人审批
+     */
+    FIRST_CONFIRM("FIRST_CONFIRM",false),
+
+    /**
+     * 请求二级审批人审批
+     */
+    SECOND_CONFIRM("SECOND_CONFIRM",false),
     ;
+
+
     /**
      * 状态码
      */
-    String code;
-    /**
-     * 状态描述
-     */
-    String desc;
+    private final String code;
     /**
      * 是否终止状态（终止状态的单子不允许在操作）
      */
-    Boolean isOver;
+    private final Boolean isOver;
 
     /**
      * 根据code查询枚举值

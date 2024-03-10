@@ -2,6 +2,8 @@ package com.management.leave.model.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * list of leave forms
  * @author zh
@@ -9,25 +11,15 @@ import lombok.Data;
 @Data
 public class LeaveFormListResDTO {
     /**
-     * applicant id
+     * total page
      */
-    private Integer applicantId;
-
+    private Long totalPage;
     /**
-     * approver id
+     * total rows
      */
-    private Integer approverId;
-
+    private Long totalRows;
     /**
-     * leave start time,timeStamp ms
+     * page data list
      */
-    private Long startTime;
-    /**
-     * end start time,timeStamp ms
-     */
-    private Long endTime;
-    /**
-     * form status
-     */
-    private String status;
+    private List<LeaveResDTO> forms;
 }

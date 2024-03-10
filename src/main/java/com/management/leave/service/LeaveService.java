@@ -1,6 +1,7 @@
 package com.management.leave.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.management.leave.common.enums.ActionEnum;
 import com.management.leave.common.enums.StatusEnum;
 import com.management.leave.common.util.CommonUtils;
@@ -12,6 +13,7 @@ import com.management.leave.exception.Assert;
 import com.management.leave.exception.ErrorInfo;
 import com.management.leave.exception.MyException;
 import com.management.leave.model.dto.ApprovalReqDTO;
+import com.management.leave.model.dto.LeaveFormListReqDTO;
 import com.management.leave.model.dto.LeaveFormListResDTO;
 import com.management.leave.model.dto.LeaveRequestDTO;
 import com.management.leave.model.dto.LeaveResDTO;
@@ -37,7 +39,7 @@ import java.util.List;
 public class LeaveService {
 
     @Autowired
-    EmployeeServiceDao employeeServiceIDao;
+    EmployeeServiceDao employeeServiceDao;
 
     @Autowired
     LeaveFormServiceDao leaveFormServiceDao;
@@ -64,9 +66,6 @@ public class LeaveService {
                 break;
             case CANCEL:
                 flag = cancelOrDel(leaveRequestDTO.getFormId(), loginInfo.getUserName(), StatusEnum.CANCEL);
-                break;
-            case DELETE:
-                flag = cancelOrDel(leaveRequestDTO.getFormId(), loginInfo.getUserName(), StatusEnum.CLOSE);
                 break;
             case SUBMIT:
                 // 查询申请人信息
@@ -126,7 +125,7 @@ public class LeaveService {
         leaveForm.setStatus(statusEnum.getCode());
         leaveForm.setCurOperator(operatorName);
         leaveForm.setUpdateTime(new Date());
-        if (StatusEnum.CLOSE.equals(statusEnum)) {
+        if (StatusEnum.CANCEL.equals(statusEnum)) {
             leaveForm.setRowStatus(0);
         }
         flag = leaveFormServiceDao.getBaseMapper().updateById(leaveForm);
@@ -152,11 +151,11 @@ public class LeaveService {
         // 已经终止的订单不允许操作
         Assert.assertTrue(ErrorInfo.ERROR_FORM_STATUS_IS_TERMINATION, !statusNow.getIsOver());
 
-        if (StatusEnum.WAITE_FIRST_CONFIRM.getCode().equals(leaveForm.getStatus())) {
+        if (StatusEnum.FIRST_CONFIRM.getCode().equals(leaveForm.getStatus())) {
             boolean isNeedNext = firstApproval(approvalReqDTO, loginInfo, leaveForm);
             approvalRes.setCurLevel(1);
             approvalRes.setNeedNextApproval(isNeedNext);
-        } else if (StatusEnum.WAITE_SECOND_CONFIRM.getCode().equals(leaveForm.getStatus())) {
+        } else if (StatusEnum.SECOND_CONFIRM.getCode().equals(leaveForm.getStatus())) {
             secondApproval(approvalReqDTO, loginInfo, leaveForm);
             approvalRes.setCurLevel(2);
         }
@@ -195,7 +194,7 @@ public class LeaveService {
         LocalDate localDateEnd = CommonUtils.dateToLocalDate(leaveForm.getEndTime());
         long between = ChronoUnit.DAYS.between(localDateStart, localDateEnd);
         if (between > 10 && StatusEnum.AGREEMENT.getCode().equals(approvalReqDTO.getNewStatus())) {
-            leaveForm.setStatus(StatusEnum.WAITE_SECOND_CONFIRM.getCode());
+            leaveForm.setStatus(StatusEnum.SECOND_CONFIRM.getCode());
         } else {
             if (StatusEnum.AGREEMENT.getCode().equals(approvalReqDTO.getNewStatus())) {
                 leaveForm.setStatus(StatusEnum.SUCCESS.getCode());
@@ -218,7 +217,7 @@ public class LeaveService {
      */
     public int insert(EmployeeInfo loginInfo, LeaveRequestDTO leaveRequestDTO) {
         int flag;
-        EmployeeEntity employeeEntity = employeeServiceIDao.getBaseMapper().selectById(loginInfo.getUserId());
+        EmployeeEntity employeeEntity = employeeServiceDao.getBaseMapper().selectById(loginInfo.getUserId());
         Assert.assertNotNull(ErrorInfo.ERROR_USER_NOT_EXIST, employeeEntity);
         Assert.assertTrue(ErrorInfo.ERROR_USER_NOT_EXIST, employeeEntity.getRowStatus() == 0);
         checkExist(leaveRequestDTO, employeeEntity.getId());
@@ -228,7 +227,7 @@ public class LeaveService {
         leaveFormEntity.setApplicantId(loginInfo.getUserId());
         leaveFormEntity.setCreateTime(new Date());
         leaveFormEntity.setUpdateTime(new Date());
-        leaveFormEntity.setStatus(StatusEnum.WAITE_FIRST_CONFIRM.getCode());
+        leaveFormEntity.setStatus(StatusEnum.FIRST_CONFIRM.getCode());
         leaveFormEntity.setStartTime(new Date(leaveRequestDTO.getStartTime()));
         leaveFormEntity.setEndTime(new Date(leaveRequestDTO.getEndTime()));
         leaveFormEntity.setReason(leaveRequestDTO.getReason());
@@ -257,9 +256,11 @@ public class LeaveService {
      * @param req
      * @return
      */
-    public List<LeaveResDTO> getLeaveFormList(LeaveFormListResDTO req) {
+    public LeaveFormListResDTO getLeaveFormList(LeaveFormListReqDTO req) {
         log.info("getLeaveFormList req {}", req);
-        List<LeaveResDTO> res = new ArrayList<>();
+        LeaveFormListResDTO resPage = new LeaveFormListResDTO();
+        List<LeaveResDTO> forms = new ArrayList<>();
+        resPage.setForms(forms);
         QueryWrapper<LeaveFormEntity> wrapper = new QueryWrapper<>();
         if (null != req.getApplicantId()) {
             wrapper.eq("applicant_Id", req.getApplicantId());
@@ -281,17 +282,18 @@ public class LeaveService {
             wrapper.le("status", req.getStatus());
         }
         wrapper.eq("row_status", "0");
-
-        List<LeaveFormEntity> leaveFormEntities = leaveFormServiceDao.getBaseMapper().selectList(wrapper);
-        for (LeaveFormEntity leaveFormEntity : leaveFormEntities) {
+        Page<LeaveFormEntity> pageParam = new Page<>(req.getPageNo(),req.getPageSize());
+        Page<LeaveFormEntity> pageData = leaveFormServiceDao.getBaseMapper().selectPage(pageParam, wrapper);
+        resPage.setTotalRows(pageData.getTotal());
+        resPage.setTotalPage(pageData.getPages());
+        for (LeaveFormEntity leaveFormEntity : pageData.getRecords()) {
             LeaveResDTO leaveDTO = leaveEntityToDTO(leaveFormEntity);
             if (leaveDTO != null) {
-                res.add(leaveDTO);
+                forms.add(leaveDTO);
             }
         }
-        log.debug("getLeaveFormList res {}", leaveFormEntities);
-
-        return res;
+        log.debug("getLeaveFormList res {}", resPage);
+        return resPage;
     }
 
     private LeaveResDTO leaveEntityToDTO(LeaveFormEntity dto) {
@@ -314,6 +316,28 @@ public class LeaveService {
         leaveDTO.setCurOperator(dto.getCurOperator());
         leaveDTO.setRowStatus(dto.getRowStatus());
         return leaveDTO;
+    }
+
+    /**
+     * get submit but unfinished forms
+     * @param start
+     * @param end
+     * @return
+     */
+    public List<LeaveFormEntity> getUnfinishedForm(Date start , Date end){
+        log.info("getUnfinishedForm req, start={},end={}",start,end);
+        if (start==null||end==null) {
+            return null;
+        }
+        QueryWrapper<LeaveFormEntity> wrapper = new QueryWrapper<>();
+        wrapper.ge("start_time", start);
+        wrapper.ge("end_time", end);
+        wrapper.ge("row_status", 0);
+        wrapper.eq("status",StatusEnum.FIRST_CONFIRM)
+                .or()
+                .eq("status",StatusEnum.SECOND_CONFIRM);
+        List<LeaveFormEntity> leaveFormEntities = leaveFormServiceDao.getBaseMapper().selectList(wrapper);
+        return leaveFormEntities;
     }
 
 

@@ -6,15 +6,15 @@ import javax.servlet.http.HttpServletRequestWrapper;
 /**
  * @author zh
  */
-public class XSSRequestWrapper extends HttpServletRequestWrapper {
-    public XSSRequestWrapper(HttpServletRequest request) {
+public class XssRequestWrapper extends HttpServletRequestWrapper {
+    public XssRequestWrapper(HttpServletRequest request) {
         super(request);
     }
 
     @Override
     public String getParameter(String name) {
         String value = super.getParameter(name);
-        return cleanXSS(value);
+        return cleanXss(value);
     }
 
     @Override
@@ -25,12 +25,12 @@ public class XSSRequestWrapper extends HttpServletRequestWrapper {
         }
         String[] result = new String[values.length];
         for (int i = 0; i< values.length; i++) {
-            result[i] = cleanXSS(values[i]);
+            result[i] = cleanXss(values[i]);
         }
         return result;
     }
 
-    private String cleanXSS(String value) {
+    private String cleanXss(String value) {
         if (value == null) {
             return null;
         }

@@ -6,8 +6,9 @@ import com.management.leave.common.util.CommonUtils;
 import com.management.leave.common.util.ThreadPoolUtil;
 import com.management.leave.exception.Assert;
 import com.management.leave.exception.ErrorInfo;
+import com.management.leave.exception.MyException;
 import com.management.leave.model.dto.ApprovalReqDTO;
-import com.management.leave.model.dto.LeaveResDTO;
+import com.management.leave.model.dto.LeaveFormListReqDTO;
 import com.management.leave.model.dto.LeaveFormListResDTO;
 import com.management.leave.model.dto.LeaveRequestDTO;
 import com.management.leave.model.dto.ResultDTO;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * leave controller
@@ -64,13 +64,15 @@ public class LeaveController implements LeaveServiceApi {
         switch (action){
             case EDIT:
             case CANCEL:
-            case DELETE:
                 Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR, req.getFormId());
                 break;
             case SUBMIT:
                 Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR, req.getStartTime());
                 Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR, req.getEndTime());
                 Assert.assertNotEmpty(ErrorInfo.ERROR_PARAM_ERROR, req.getReason());
+            default:
+                log.error("action exception {}",action);
+                throw new MyException(ErrorInfo.ERROR_UNKNOWN_ERROR);
         }
     }
 
@@ -108,8 +110,7 @@ public class LeaveController implements LeaveServiceApi {
 
     @Override
     @PostMapping("/forms")
-    public ResultDTO<List<LeaveResDTO>> leaveFormList(@Validated LeaveFormListResDTO req) {
-        // 查询数据库，返回请假申请记录列表
+    public ResultDTO<LeaveFormListResDTO> leaveFormList(@Validated LeaveFormListReqDTO req) {
         return ResultDTO.success(leaveService.getLeaveFormList(req));
     }
 

@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.util.Date;
 
+/**
+ * @author zh
+ */
 @Data
 public class LeaveResDTO {
     /**
