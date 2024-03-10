@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 /**
@@ -14,8 +15,9 @@ public class LoginReqDTO {
     /**
      * 用户登录名
      */
-    @NotBlank(message = "userName cannot be empty")
-    private String userName;
+    @NotNull(message = "loginName cannot be null")
+    @NotBlank(message = "loginName cannot be empty")
+    private String loginName;
 
     /**
      * 手机验证码

@@ -2,6 +2,7 @@ package com.management.leave.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.management.leave.common.constats.Constants;
 import com.management.leave.common.enums.ActionEnum;
 import com.management.leave.common.enums.StatusEnum;
 import com.management.leave.common.util.CommonUtils;
@@ -65,7 +66,7 @@ public class LeaveService {
                 flag = edit(leaveRequestDTO, loginInfo);
                 break;
             case CANCEL:
-                flag = cancelOrDel(leaveRequestDTO.getFormId(), loginInfo.getUserName(), StatusEnum.CANCEL);
+                flag = cancelOrDel(leaveRequestDTO.getFormId(), loginInfo.getUserId(), StatusEnum.CANCEL);
                 break;
             case SUBMIT:
                 // 查询申请人信息
@@ -90,6 +91,8 @@ public class LeaveService {
         LeaveFormEntity leaveForm = leaveFormServiceDao.getBaseMapper().selectById(leaveRequestDTO.getFormId());
         Assert.assertNotNull(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm);
         Assert.assertTrue(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm.getRowStatus() == 0);
+        // 只能修改save状态的申请
+        Assert.assertTrue(ErrorInfo.ERROR_NO_PERMISSION, StatusEnum.SAVE.equals(leaveForm.getStatus()));
         StatusEnum statusNow = StatusEnum.query(leaveForm.getStatus());
         // 已经终止的订单不允许操作
         Assert.assertTrue(ErrorInfo.ERROR_FORM_STATUS_IS_TERMINATION, !statusNow.getIsOver());
@@ -100,7 +103,7 @@ public class LeaveService {
         leaveForm.setReason(leaveRequestDTO.getReason());
         leaveForm.setStartTime(new Date(leaveRequestDTO.getStartTime()));
         leaveForm.setEndTime(new Date(leaveRequestDTO.getEndTime()));
-        leaveForm.setCurOperator(loginUser.getUserName());
+        leaveForm.setCurOperator(loginUser.getUserId());
         flag = leaveFormServiceDao.getBaseMapper().updateById(leaveForm);
         log.info("edit leave form, result: {}", flag);
         return flag;
@@ -112,7 +115,7 @@ public class LeaveService {
      * @param formId 请假单id
      * @return
      */
-    public int cancelOrDel(Integer formId, String operatorName, StatusEnum statusEnum) {
+    public int cancelOrDel(Integer formId, String operatorId, StatusEnum statusEnum) {
         log.info("change leave form status, params: formId={}", formId);
         int flag;
         LeaveFormEntity leaveForm = leaveFormServiceDao.getBaseMapper().selectById(formId);
@@ -123,7 +126,7 @@ public class LeaveService {
         Assert.assertTrue(ErrorInfo.ERROR_FORM_STATUS_IS_TERMINATION, !statusNow.getIsOver());
 
         leaveForm.setStatus(statusEnum.getCode());
-        leaveForm.setCurOperator(operatorName);
+        leaveForm.setCurOperator(operatorId);
         leaveForm.setUpdateTime(new Date());
         if (StatusEnum.CANCEL.equals(statusEnum)) {
             leaveForm.setRowStatus(0);
@@ -152,10 +155,18 @@ public class LeaveService {
         Assert.assertTrue(ErrorInfo.ERROR_FORM_STATUS_IS_TERMINATION, !statusNow.getIsOver());
 
         if (StatusEnum.FIRST_CONFIRM.getCode().equals(leaveForm.getStatus())) {
+            // 申请单旧有状态是1级等待审批状态,判断是否需要2级审批
             boolean isNeedNext = firstApproval(approvalReqDTO, loginInfo, leaveForm);
             approvalRes.setCurLevel(1);
             approvalRes.setNeedNextApproval(isNeedNext);
+            if (isNeedNext) {
+                EmployeeEntity employee = employeeServiceDao.getBaseMapper().selectById(leaveForm.getFirstApprover());
+                if (employee != null) {
+                    leaveForm.setCurOperator(String.valueOf(employee.getSuperiorId()));
+                }
+            }
         } else if (StatusEnum.SECOND_CONFIRM.getCode().equals(leaveForm.getStatus())) {
+            // 申请单旧有状态是2级等待审批状态，则无论驳回还是同意流程都结束了
             secondApproval(approvalReqDTO, loginInfo, leaveForm);
             approvalRes.setCurLevel(2);
         }
@@ -168,7 +179,7 @@ public class LeaveService {
 
     private static void secondApproval(ApprovalReqDTO approvalReqDTO, EmployeeInfo loginInfo, LeaveFormEntity leaveForm) {
         // 审批人身份校验
-        Assert.assertTrue(ErrorInfo.ERROR_NO_PERMISSION, loginInfo.getUserId().equals(String.valueOf(leaveForm.getSecondApprover())));
+        Assert.assertTrue(ErrorInfo.ERROR_NO_PERMISSION, loginInfo.getUserId().equals(String.valueOf(leaveForm.getCurOperator())));
         // 如果2级审批人，更新2级审批人批语
         //这一步校验是为了禁止跨级别审批，必须一级领导审批后才能流转给二级领导
         Assert.assertNotEmpty(ErrorInfo.ERROR_CROSS_LEVEL_APPROVAL, leaveForm.getFirstApprover());
@@ -180,7 +191,7 @@ public class LeaveService {
         } else {
             leaveForm.setStatus(approvalReqDTO.getNewStatus());
         }
-        leaveForm.setCurOperator(loginInfo.getUserName());
+        leaveForm.setCurOperator(loginInfo.getUserId());
         leaveForm.setUpdateTime(new Date());
     }
 
@@ -189,11 +200,12 @@ public class LeaveService {
         Assert.assertTrue(ErrorInfo.ERROR_NO_PERMISSION, loginInfo.getUserId().equals(String.valueOf(leaveForm.getFirstApprover())));
         // 如果1级审批人，更新1级审批人批语
         leaveForm.setFirstComment(approvalReqDTO.getComments());
+
         // 如果大于10天，且1级审批同意申请，则状态更改为待2级审批
         LocalDate localDateStart = CommonUtils.dateToLocalDate(leaveForm.getStartTime());
         LocalDate localDateEnd = CommonUtils.dateToLocalDate(leaveForm.getEndTime());
         long between = ChronoUnit.DAYS.between(localDateStart, localDateEnd);
-        if (between > 10 && StatusEnum.AGREEMENT.getCode().equals(approvalReqDTO.getNewStatus())) {
+        if (between >= Constants.TIME_BETWEEN && StatusEnum.AGREEMENT.getCode().equals(approvalReqDTO.getNewStatus())) {
             leaveForm.setStatus(StatusEnum.SECOND_CONFIRM.getCode());
         } else {
             if (StatusEnum.AGREEMENT.getCode().equals(approvalReqDTO.getNewStatus())) {
@@ -201,10 +213,11 @@ public class LeaveService {
             } else {
                 leaveForm.setStatus(approvalReqDTO.getNewStatus());
             }
+            leaveForm.setCurOperator(loginInfo.getUserId());
         }
-        leaveForm.setCurOperator(loginInfo.getUserName());
+
         leaveForm.setUpdateTime(new Date());
-        return between>10;
+        return between >= Constants.TIME_BETWEEN;
     }
 
 
@@ -232,7 +245,15 @@ public class LeaveService {
         leaveFormEntity.setEndTime(new Date(leaveRequestDTO.getEndTime()));
         leaveFormEntity.setReason(leaveRequestDTO.getReason());
         leaveFormEntity.setFirstApprover(employeeEntity.getSuperiorId());
-        leaveFormEntity.setCurOperator(loginInfo.getUserName());
+        leaveFormEntity.setCurOperator(String.valueOf(employeeEntity.getSuperiorId()));
+
+        LocalDate localDateStart = CommonUtils.dateToLocalDate(new Date(leaveRequestDTO.getStartTime()));
+        LocalDate localDateEnd = CommonUtils.dateToLocalDate(new Date(leaveRequestDTO.getEndTime()));
+        long between = ChronoUnit.DAYS.between(localDateStart, localDateEnd);
+        if (between >= Constants.TIME_BETWEEN) {
+            EmployeeEntity employee = employeeServiceDao.getBaseMapper().selectById(employeeEntity.getSuperiorId());
+            leaveFormEntity.setSecondApprover(employee.getSuperiorId());
+        }
         flag = leaveFormServiceDao.getBaseMapper().insert(leaveFormEntity);
         return flag;
     }
@@ -266,11 +287,7 @@ public class LeaveService {
             wrapper.eq("applicant_Id", req.getApplicantId());
         }
         if (null != req.getApproverId()) {
-            wrapper.and(param ->
-                    param.eq("first_approver", req.getApproverId())
-                            .or()
-                            .eq("second_approver", req.getApproverId())
-            );
+            wrapper.eq("cur_operator", req.getApproverId());
         }
         if (null != req.getStartTime() && req.getStartTime() > 0) {
             wrapper.ge("start_time", new Date(req.getStartTime()));
@@ -282,7 +299,7 @@ public class LeaveService {
             wrapper.le("status", req.getStatus());
         }
         wrapper.eq("row_status", "0");
-        Page<LeaveFormEntity> pageParam = new Page<>(req.getPageNo(),req.getPageSize());
+        Page<LeaveFormEntity> pageParam = new Page<>(req.getPageNo(), req.getPageSize());
         Page<LeaveFormEntity> pageData = leaveFormServiceDao.getBaseMapper().selectPage(pageParam, wrapper);
         resPage.setTotalRows(pageData.getTotal());
         resPage.setTotalPage(pageData.getPages());
@@ -320,22 +337,23 @@ public class LeaveService {
 
     /**
      * get submit but unfinished forms
+     *
      * @param start
      * @param end
      * @return
      */
-    public List<LeaveFormEntity> getUnfinishedForm(Date start , Date end){
-        log.info("getUnfinishedForm req, start={},end={}",start,end);
-        if (start==null||end==null) {
+    public List<LeaveFormEntity> getUnfinishedForm(Date start, Date end) {
+        log.info("getUnfinishedForm req, start={},end={}", start, end);
+        if (start == null || end == null) {
             return null;
         }
         QueryWrapper<LeaveFormEntity> wrapper = new QueryWrapper<>();
         wrapper.ge("start_time", start);
         wrapper.ge("end_time", end);
         wrapper.ge("row_status", 0);
-        wrapper.eq("status",StatusEnum.FIRST_CONFIRM)
+        wrapper.eq("status", StatusEnum.FIRST_CONFIRM)
                 .or()
-                .eq("status",StatusEnum.SECOND_CONFIRM);
+                .eq("status", StatusEnum.SECOND_CONFIRM);
         List<LeaveFormEntity> leaveFormEntities = leaveFormServiceDao.getBaseMapper().selectList(wrapper);
         return leaveFormEntities;
     }

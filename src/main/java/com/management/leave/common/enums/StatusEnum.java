@@ -12,6 +12,11 @@ import lombok.ToString;
 @AllArgsConstructor
 public enum StatusEnum {
     /**
+     * 保存不提交
+     */
+    SAVE("SAVE",false),
+
+    /**
      * 表示审批人驳回
      */
     REJECTED("REJECTED",true),

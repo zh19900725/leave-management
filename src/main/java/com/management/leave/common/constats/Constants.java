@@ -20,9 +20,10 @@ public class Constants {
     /**
      * 验证码缓存
      */
-    public final static String LOGIN_PHONE_CODE = "LOGIN_PHONE_CODE";
+    public final static String LOGIN_PHONE_CODE = "LOGIN_PHONE_CODE_";
     /**
      * token 缓存
      */
     public final static String LOGIN_TOKEN = "LOGIN_TOKEN";
+    public final static Integer TIME_BETWEEN = 10;
 }

@@ -36,7 +36,7 @@ public class ParamLogAspect {
             HttpServletRequest request = sra.getRequest();
             String servletPath = request.getServletPath();
             if (joinPoint != null && joinPoint.getArgs() != null) {
-                log.info("request path: {} request size {}", servletPath, joinPoint.getArgs().toString().length());
+                log.info("request path:{} request args:{}", servletPath, joinPoint.getArgs());
             }
 
         }

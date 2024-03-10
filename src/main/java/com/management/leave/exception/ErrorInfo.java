@@ -27,7 +27,8 @@ public enum ErrorInfo {
     ERROR_USER_NOT_EXIST(10013, "user not exist"),
     ERROR_USER_IS_DELETE(10014, "user is deleted!"),
     ERROR_SMS_CODE(10015, " sms code check failed!"),
-    ERROR_FORM_STATUS_IS_TERMINATION(10015, "form status is termination!"),
+    ERROR_FORM_STATUS_IS_TERMINATION(10016, "form status is termination!"),
+    ERROR_LOGIN_INFO_ERROR(10017, "phone or loginName error!"),
     ;
     private final int errorCode;
     private final String errorMsg;

@@ -4,6 +4,7 @@ import com.management.leave.model.dto.ResultDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -45,9 +46,33 @@ public class GlobalExceptionHandler {
     }
 
 
+    /**
+     * validator校验异常处理
+     * @param e
+     * @return
+     */
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<ResultDTO> handleValidException(MethodArgumentNotValidException e) {
-        log.error("data check error {}，exception class:{}", e.getMessage(), e.getClass());
+        log.error("dhandleValidException,ata check error {}，exception class:{}", e.getMessage(), e.getClass());
+        BindingResult bindingResult = e.getBindingResult();
+        StringBuffer errorMsg = new StringBuffer();
+        bindingResult.getFieldErrors().forEach(item->{
+            if (!errorMsg.toString().contains(item.getDefaultMessage())) {
+                errorMsg.append(item.getDefaultMessage()).append(",");
+            }
+        });
+        ResultDTO resultModel = ResultDTO.failure(errorMsg.substring(0,errorMsg.length()-1),ErrorInfo.ERROR_PARAM_ERROR.getErrorCode());
+        return new ResponseEntity<>(resultModel, HttpStatus.OK);
+    }
+
+    /**
+     * validator校验异常处理
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(value = BindException.class)
+    public ResponseEntity<ResultDTO> handleBindException(BindException e) {
+        log.error("handleBindException,data check error {}，exception class:{}", e.getMessage(), e.getClass());
         BindingResult bindingResult = e.getBindingResult();
         StringBuffer errorMsg = new StringBuffer();
         bindingResult.getFieldErrors().forEach(item->{

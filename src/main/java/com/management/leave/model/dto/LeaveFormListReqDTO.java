@@ -1,12 +1,14 @@
 package com.management.leave.model.dto;
 
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * list of leave forms
  * @author zh
  */
 @Data
+@ToString(callSuper = true)
 public class LeaveFormListReqDTO extends PageReqDTO {
     /**
      * applicant id

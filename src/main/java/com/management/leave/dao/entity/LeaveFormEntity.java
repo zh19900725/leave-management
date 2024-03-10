@@ -3,9 +3,10 @@ package com.management.leave.dao.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Date;
 
 /**
  * <p>
@@ -79,7 +80,7 @@ public class LeaveFormEntity {
     private String secondComment;
 
     /**
-     * 最后更新申请单的操作人信息
+     * 当前待操作人（可以理解为请假单子流转到谁的手上了）
      */
     private String curOperator;
 
