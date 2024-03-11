@@ -2,14 +2,27 @@ package com.management.leave.exception;
 
 
 /**
+ * 自定义异常类
  * @author zh
  */
 public class MyException extends RuntimeException {
-    private static final long serialVersionUID = 4010950949705194814L;
+    /**
+     * 错误码
+     */
     private int errorCode;
+    /**
+     * 错误描述
+     */
     private String errorMsg;
-    private String leftFlag="[";
-    private String rightFlag="]";
+    /**
+     * 左标记符
+     */
+    private final String leftFlag="[";
+    /**
+     * 右标记符
+     */
+    private final String rightFlag="]";
+
     public MyException(Object errorInfo) {
         super(errorInfo.toString());
         if(errorInfo instanceof String &&  ((String) errorInfo).contains(leftFlag)){

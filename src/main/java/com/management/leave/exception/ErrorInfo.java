@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 /**
+ * 错误码表
  * @author zh
  */
 @Getter

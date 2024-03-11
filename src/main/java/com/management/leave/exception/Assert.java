@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
+ * 自定义断言工具
  * @author zh
  */
 @Log4j2

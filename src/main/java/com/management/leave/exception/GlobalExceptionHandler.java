@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 /**
+ * 全局异常处理
  * @author zh
  */
 @ControllerAdvice
