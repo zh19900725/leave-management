@@ -43,7 +43,7 @@ public class LeaveServiceTest extends BaseSpringTest {
     }
 
     @Test
-    public void edit() {
+    public void editTest() {
         // 测试正常场景
         leaveRequestDTO.setAction(ActionEnum.SUBMIT.getCode());
         leaveRequestDTO.setFormId(2);
@@ -58,7 +58,7 @@ public class LeaveServiceTest extends BaseSpringTest {
     }
 
     @Test
-    public void cancelOrDel() {
+    public void cancelTest() {
         int i = 0;
         // 撤销已经存在的单子
         i=leaveService.cancel(2,"zhangsan");
@@ -70,12 +70,12 @@ public class LeaveServiceTest extends BaseSpringTest {
     }
 
     @Test
-    public void approval() {
+    public void approvalTest() {
         // 这里用knife4j做黑盒测试
     }
 
     @Test
-    public void insert() {
+    public void insertTest() {
         // 异常场景，提交一个已经提交过的请假单
         leaveRequestDTO.setAction(ActionEnum.SUBMIT.getCode());
         leaveRequestDTO.setReason("i do not want work");
