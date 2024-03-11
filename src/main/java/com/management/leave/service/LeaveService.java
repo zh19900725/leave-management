@@ -66,7 +66,7 @@ public class LeaveService {
                 flag = edit(leaveRequestDTO, loginInfo);
                 break;
             case CANCEL:
-                flag = cancelOrDel(leaveRequestDTO.getFormId(), loginInfo.getUserId(), StatusEnum.CANCEL);
+                flag = cancel(leaveRequestDTO.getFormId(), loginInfo.getUserId());
                 break;
             case SUBMIT:
                 // 查询申请人信息
@@ -92,7 +92,7 @@ public class LeaveService {
         Assert.assertNotNull(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm);
         Assert.assertTrue(ErrorInfo.ERROR_LEAVE_FORM_NOT_FOUND, leaveForm.getRowStatus() == 0);
         // 只能修改save状态的申请
-        Assert.assertTrue(ErrorInfo.ERROR_NO_PERMISSION, StatusEnum.SAVE.equals(leaveForm.getStatus()));
+        Assert.assertTrue(ErrorInfo.ERROR_NO_PERMISSION, StatusEnum.SAVE.getCode().equals(leaveForm.getStatus()));
         StatusEnum statusNow = StatusEnum.query(leaveForm.getStatus());
         // 已经终止的订单不允许操作
         Assert.assertTrue(ErrorInfo.ERROR_FORM_STATUS_IS_TERMINATION, !statusNow.getIsOver());
@@ -110,12 +110,12 @@ public class LeaveService {
     }
 
     /**
-     * 撤回或者删除请假单
+     * 撤回请假单
      *
      * @param formId 请假单id
      * @return
      */
-    public int cancelOrDel(Integer formId, String operatorId, StatusEnum statusEnum) {
+    public int cancel(Integer formId, String operatorId) {
         log.info("change leave form status, params: formId={}", formId);
         int flag;
         LeaveFormEntity leaveForm = leaveFormServiceDao.getBaseMapper().selectById(formId);
@@ -125,12 +125,10 @@ public class LeaveService {
         // 已经终止的订单不允许操作
         Assert.assertTrue(ErrorInfo.ERROR_FORM_STATUS_IS_TERMINATION, !statusNow.getIsOver());
 
-        leaveForm.setStatus(statusEnum.getCode());
+        leaveForm.setStatus(StatusEnum.CANCEL.getCode());
         leaveForm.setCurOperator(operatorId);
         leaveForm.setUpdateTime(new Date());
-        if (StatusEnum.CANCEL.equals(statusEnum)) {
-            leaveForm.setRowStatus(0);
-        }
+        leaveForm.setRowStatus(1);
         flag = leaveFormServiceDao.getBaseMapper().updateById(leaveForm);
         log.info("change leave form status, result:{},", flag);
         return flag;

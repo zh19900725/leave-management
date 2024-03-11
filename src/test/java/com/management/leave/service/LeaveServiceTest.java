@@ -2,7 +2,6 @@ package com.management.leave.service;
 
 import com.management.leave.base.BaseSpringTest;
 import com.management.leave.common.enums.ActionEnum;
-import com.management.leave.common.enums.StatusEnum;
 import com.management.leave.dao.entity.LeaveFormEntity;
 import com.management.leave.model.dto.LeaveRequestDTO;
 import com.management.leave.model.pojo.EmployeeInfo;
@@ -30,7 +29,7 @@ public class LeaveServiceTest extends BaseSpringTest {
     static {
         // mock login
         employeeInfo.setUserId("1");
-        employeeInfo.setUserName("aarronzhang");
+        employeeInfo.setUserName("zhangsan");
 
         // mock leave submit data
         LeaveRequestDTO leaveRequestDTO = new LeaveRequestDTO();
@@ -62,10 +61,10 @@ public class LeaveServiceTest extends BaseSpringTest {
     public void cancelOrDel() {
         int i = 0;
         // 撤销已经存在的单子
-        i=leaveService.cancelOrDel(2,"aarronzhang", StatusEnum.CANCEL);
+        i=leaveService.cancel(2,"zhangsan");
         Assert.isTrue(i>0);
         // 撤销不存在的单子
-        i=leaveService.cancelOrDel(1000,"aarronzhang", StatusEnum.CANCEL);
+        i=leaveService.cancel(1000,"zhangsan");
         Assert.isTrue(i==0);
 
     }
