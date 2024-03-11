@@ -67,10 +67,10 @@ public class LeaveController implements LeaveServiceApi {
                 Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR, req.getFormId());
                 break;
             case SUBMIT:
-                Assert.assertTrue(ErrorInfo.ERROR_PARAM_ERROR,req.getStartTime()>System.currentTimeMillis());
-                Assert.assertTrue(ErrorInfo.ERROR_PARAM_ERROR,req.getEndTime()>req.getStartTime());
                 Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR, req.getStartTime());
                 Assert.assertNotNull(ErrorInfo.ERROR_PARAM_ERROR, req.getEndTime());
+                Assert.assertTrue(ErrorInfo.ERROR_PARAM_ERROR,req.getStartTime()>System.currentTimeMillis());
+                Assert.assertTrue(ErrorInfo.ERROR_PARAM_ERROR,req.getEndTime()>req.getStartTime());
                 Assert.assertNotEmpty(ErrorInfo.ERROR_PARAM_ERROR, req.getReason());
                 break;
             default:
