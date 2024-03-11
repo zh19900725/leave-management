@@ -4,6 +4,8 @@
 - jdk1.8
 - springboot2.2.7.RELEASE
 - maven
+- mysql (use mybatis)
+- redis
 
 ## business background
 this project is to build a leave management,The requirements as below:<br/>
