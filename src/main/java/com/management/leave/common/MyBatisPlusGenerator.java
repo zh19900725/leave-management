@@ -30,7 +30,8 @@ public class MyBatisPlusGenerator {
      */
     private static FastAutoGenerator create(List<String> tableNames) {
         // 数据库连接地址，
-        String url = System.getenv("MYSQL_URL");
+        String host = System.getenv("MYSQL_HOST");
+        String url = "jdbc:mysql://"+host+"/leave_management?useSSL=false&serverTimezone=UTC";
         // 数据库用户名
         String name = System.getenv("MYSQL_USER_NAME");
         // 数据库密码
