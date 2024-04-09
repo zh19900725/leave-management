@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +38,7 @@ public class LeaveController implements LeaveServiceApi {
 
     @Override
     @PostMapping("/addOrUpdate")
-    public ResultDTO<Boolean> addOrUpdateForm(HttpServletRequest request,@Validated LeaveRequestDTO req) {
+    public ResultDTO<Boolean> addOrUpdateForm(HttpServletRequest request,@Validated @RequestBody LeaveRequestDTO req) {
         // 参数校验
         validatorParam(req);
         EmployeeInfo loginInfo = CommonUtils.getLoginInfo(request);
@@ -82,7 +83,7 @@ public class LeaveController implements LeaveServiceApi {
 
     @Override
     @PostMapping("/approval")
-    public ResultDTO<Boolean> approval(HttpServletRequest request,@Validated ApprovalReqDTO req) {
+    public ResultDTO<Boolean> approval(HttpServletRequest request,@Validated @RequestBody ApprovalReqDTO req) {
         // 参数校验
         EmployeeInfo loginInfo = CommonUtils.getLoginInfo(request);
         Assert.assertNotNull(ErrorInfo.ERROR_UNKNOWN_ERROR,loginInfo);
@@ -113,7 +114,7 @@ public class LeaveController implements LeaveServiceApi {
 
     @Override
     @PostMapping("/forms")
-    public ResultDTO<LeaveFormListResDTO> leaveFormList(@Validated LeaveFormListReqDTO req) {
+    public ResultDTO<LeaveFormListResDTO> leaveFormList(@Validated @RequestBody LeaveFormListReqDTO req) {
         return ResultDTO.success(leaveService.getLeaveFormList(req));
     }
 

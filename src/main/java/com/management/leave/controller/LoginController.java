@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +25,7 @@ public class LoginController implements LoginServiceApi {
 
     @PostMapping("/login")
     @Override
-    public ResultDTO<String> login(@Validated LoginReqDTO req) {
+    public ResultDTO<String> login(@Validated @RequestBody LoginReqDTO req) {
         String token = loginService.login(req);
         if (!StringUtils.isEmpty(token)) {
             return ResultDTO.success(token);
@@ -35,7 +36,7 @@ public class LoginController implements LoginServiceApi {
 
     @PostMapping("/sendCode")
     @Override
-    public ResultDTO<Boolean> sendCode(@Validated SmsReqDTO req) {
+    public ResultDTO<Boolean> sendCode(@Validated @RequestBody SmsReqDTO req) {
         loginService.sendCode(req.getMobile());
         return ResultDTO.success(true);
     }

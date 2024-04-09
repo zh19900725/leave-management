@@ -10,6 +10,11 @@ import java.util.Date;
 @Data
 public class LeaveResDTO {
     /**
+     * 请假人姓名
+     */
+    private String employeeName;
+
+    /**
      * 表单id
      */
     private Integer id;

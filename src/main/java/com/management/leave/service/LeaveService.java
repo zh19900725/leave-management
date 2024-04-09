@@ -244,6 +244,7 @@ public class LeaveService {
         leaveFormEntity.setReason(leaveRequestDTO.getReason());
         leaveFormEntity.setFirstApprover(employeeEntity.getSuperiorId());
         leaveFormEntity.setCurOperator(String.valueOf(employeeEntity.getSuperiorId()));
+        leaveFormEntity.setEmployeeName(loginInfo.getUserName());
 
         LocalDate localDateStart = CommonUtils.dateToLocalDate(new Date(leaveRequestDTO.getStartTime()));
         LocalDate localDateEnd = CommonUtils.dateToLocalDate(new Date(leaveRequestDTO.getEndTime()));
@@ -330,6 +331,7 @@ public class LeaveService {
         leaveDTO.setSecondComment(dto.getSecondComment());
         leaveDTO.setCurOperator(dto.getCurOperator());
         leaveDTO.setRowStatus(dto.getRowStatus());
+        leaveDTO.setEmployeeName(dto.getEmployeeName());
         return leaveDTO;
     }
 
